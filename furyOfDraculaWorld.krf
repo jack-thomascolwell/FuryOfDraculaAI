@@ -1,0 +1,7 @@
+;;; /furyOfDraculaWorld.krf
+;;;
+;;; This file defines the furyOfDraculaWorldMt microtheory. See README.md for more.
+;;; Authors: Joey Rose, Ruth Schlosser, and Jack Thomas-Colwell
+
+(in-microtheory furyOfDraculaWorldMt)
+TODO write microtheory

@@ -1,0 +1,7 @@
+;;; /evasionGame.krf
+;;;
+;;; This file defines the evasionGameMt microtheory. See README.md for more.
+;;; Authors: Joey Rose, Ruth Schlosser, and Jack Thomas-Colwell
+
+(in-microtheory evasionGameMt)
+TODO write microtheory
