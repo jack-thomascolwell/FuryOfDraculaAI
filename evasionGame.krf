@@ -4,4 +4,89 @@
 ;;; Authors: Joey Rose, Ruth Schlosser, and Jack Thomas-Colwell
 
 (in-microtheory evasionGameMt)
-TODO write microtheory
+
+(isa Location Collection)
+(comment Location “Location is a collection of locations on the board”)
+(isa LocationType Collection)
+(comment LocationType “LocationType is a collection of types of locations on the board”)
+(isa ConnectionType Collection)
+	(comment ConnectionType “ConnectionType is a collection of types of connections between two locations)
+(isa connects Predicate)
+	(arity connects 3)
+	(arg1isa connects ConnectionType)
+	(arg2isa connects LocationType)
+	(arg3isa connects LocationType)
+	(comment connects “Connects states that the given ConnectionType connects locations of the two given LocationTypes”)
+  (isa MapRegion Collection)
+  	(genls MapRegion Location)
+  	(comment MapRegion “MapRegion is a collection of regions on the board”)
+
+  (isa connectedTo TernaryPredicate)
+  	(arity connectedTo 3)
+  (arg1isa connectedTo Location)
+  (arg2isa connectedTo Location)
+  (arg3isa connectedTo ConnectionType)
+  (comment connectedTo “connectedTo describes that travel is permitted between two locations using the given connectionType”)
+
+  (isa Agent Collection)
+  	(comment Agent “Agent is a collection of all players in an evasion game”)
+
+  (isa Hunter Collection)
+  	(genls Hunter Agent)
+  	(comment Hunter “Hunter is a collection of all players playing as hunters”)
+    (isa region BinaryPredicate)
+    	(arity region 2)
+    	(arg1isa region City)
+    	(arg2isa region MapRegion)
+    	(comment region “region refers to the region of the board that a city is in”)
+
+    (isa location BinaryPredicate)
+    	(arity location 2)
+    	(arg1isa location Agent)
+    	(arg2isa location City)
+    	(comment location “location refers to the city on the board that an agent is in)
+
+
+    ;;; horn clause to infer the region that a hunter is in based on their city.
+    (<== (agentInRegion ?agent ?region)
+    (location ?agent ?city)
+    (region ?city ?region)
+    )
+    (isa hasCard Predicate)
+    	(arity hasCard 3)
+    	(arg1isa hasCard Agent)
+    (arg2isa hasCard Card)
+    (arg3isa hasCard Integer)
+    (comment hasCard “hasCard specifies that some Agent has an amount of some Card”)
+    (isa inDiscard Predicate)
+    	(arity inDiscard 2)
+    	(arg1isa inDiscard Card)
+    	(arg2isa inDiscard Integer)
+    	(comment inDiscard  “inDiscard specifies that some number of cards of a certain type have been discarded at some earlier point in the game”)
+
+
+    (isa damage BinaryPredicate)
+    	(arity damage 2)
+    	(arg1isa damage Agent)
+    	(arg2isa damage Integer)
+    	(comment damage “damage specifies that a certain Agent currently has a certain amount of damage”)
+      ;;; check to make sure that all agents are alive
+      (<== (isAlive ?hunter)
+      (isa ?hunter Hunter
+      (hasValidDamage ?hunter)
+      (hasValidBiteTokens ?hunter)
+      )
+
+      (<== (isAlive ?agent)
+      (isa ?agent Agent)
+      (uninferredSentence (isa ?agent Hunter))
+      (hasValidDamage ?agent)
+      )
+
+      ;;; check to make sure that agents don’t have too much damage
+      (<== (hasValidDamage ?agent)
+      (isa ?agent Agent)
+      (maxDamage Agent ?maxDamage)
+      (damage Agent ?damage)
+      (greaterThan ?maxDamage ?damage)
+      )
