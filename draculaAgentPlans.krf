@@ -1,1 +1,51 @@
 (in-microtheory furyOfDraculaAgentPlansMt)
+(genlMt Session-ReasonerPlanMt furyOfDraculaAgentPlansMt)
+(isa getNextLocations ComplexActionPredicate)
+(arity getNextLocations 5)
+
+;;; there is a location to be added
+(preconditionForMethod
+  (and
+    (connectedTo ?currentLocation ?nextLocation road)
+    ;;; have not visited nextLocation
+    (different (SetDifferenceFn (TheSet ?nextLocation) ?previousPath) TheEmptySet)
+    ;;; nextLocation not in addedSet
+    (different (SetDifferenceFn (TheSet ?nextLocation) ?addedSet) TheEmptySet)
+
+    ;;; add new path to frontier
+    (evaluate ?frontierSet (SetAdjoinFn ?frontierSet (TheList (PlusFn ?distance 1) ?nextLocation (TheSet (SetAdjoinFn ?previousPath ?nextLocation)))))
+    ;;; add location to addedSet
+    (evaluate ?addedSet (SetAdjoinFn ?addedSet ?nextLocation))
+  )
+  (methodForAction
+    (getNextLocations ?distance ?currentLocation ?previousPath ?frontierSet ?addedSet)
+    (actionSequence
+      (TheList
+        (doAgentPlan
+          (getNextLocations ?distance ?currentLocation ?previousPath ?frontierSet ?addedSet)
+        )
+      )
+    )
+  )
+)
+
+;;; all locations have been added FIXME this is not needed?
+(preconditionForMethod
+  (and
+    (connectedTo ?currentLocation ?nextLocation road)
+    ;;; there does not exist a nextLocation that is not in addedSet
+    (uninferredSentence (different (SetDifferenceFn (TheSet ?nextLocation) ?addedSet) TheEmptySet))
+  )
+  (methodForAction
+    (getNextLocations ?distance ?currentLocation ?previousPath ?frontierSet ?addedSet)
+    (actionSequence
+      (TheList
+        ;;; forget existing frontierSet
+        (doForget (ist-Information DraculaSearchSpacePlansMt (frontierSet ?frontierSet)))
+        (doClearWorkingMemory)
+        ;;; record frontierSet
+        (doRecord (ist-Information DraculaSearchSpacePlansMt (frontierSet ?frontierSet)))
+      )
+    )
+  )
+)

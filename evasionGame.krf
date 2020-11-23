@@ -71,7 +71,7 @@
 	(arg1isa damage Agent)
 	(arg2isa damage Integer)
 	(comment damage "damage specifies that a certain Agent currently has a certain amount of damage")
-	;;; check to make sure that all agents are alive
+;;; check to make sure that all agents are alive
 (<== (isAlive ?hunter)
 	(isa ?hunter Hunter)
   (hasValidDamage ?hunter)
