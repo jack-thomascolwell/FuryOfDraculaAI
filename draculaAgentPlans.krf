@@ -1,28 +1,109 @@
 (in-microtheory furyOfDraculaAgentPlansMt)
-(genlMt Session-ReasonerPlanMt furyOfDraculaAgentPlansMt)
-(isa getNextLocations ComplexActionPredicate)
-(arity getNextLocations 5)
+
+;;; no more locations in frontier to extract i.e. done
+(preconditionForMethod
+  (and
+    (uninferredSentence (different ?frontierSet (TheSet)))
+  )
+  (methodForAction
+    (getLocationsFromFrontier ?frontierSet ?locationSet)
+    (actionSequence
+      (TheList
+        (doForget (ist-Information furyOfDraculaResultsMt (frontierLocations ?someLocationSet)))
+        (doClearWorkingMemory)
+        (doRecord (ist-Information furyOfDraculaResultsMt (frontierLocations ?locationSet)))
+      )
+    )
+  )
+)
+
+;;; more locations in frontier to extract
+(preconditionForMethod
+  (and
+    (elementOf ?tuple ?frontierSet)
+    (evaluate ?location (SecondInListFn ?tuple))
+
+    (evaluate ?newFrontierSet (SetMinusFn ?frontierSet ?tuple))
+    (evaluate ?newLocationSet (SetAdjoinFn ?locationSet ?location))
+  )
+  (methodForAction
+    (getLocationsFromFrontier ?frontierSet ?locationSet)
+    (actionSequence
+      (TheList
+        (doAgentPlan
+          (getLocationsFromFrontier ?newFrontierSet ?newLocationSet)
+        )
+      )
+    )
+  )
+)
+
+;;; at the end of the frontier no results
+(preconditionForMethod
+  (and
+    (evaluate ?lowestDistance (MinimumFn ?frontierSet FirstInListFn))
+    (greaterThanOrEqualTo ?lowestDistance ?distance)
+  )
+  (methodForAction
+    (getFrontierLocations ?distance ?frontierSet)
+    (actionSequence
+      (TheList
+        (doAgentPlan
+          (getLocationsFromFrontier ?frontierSet (TheSet))
+        )
+      )
+    )
+  )
+)
+
+;;; have more things in frontier
+(preconditionForMethod
+  (and
+    (evaluate ?lowestDistance (MinimumFn ?frontierSet FirstInListFn))
+    (elementOf ?lowestDistanceTuple ?frontierSet)
+    (evaluate ?lowestDistance (FirstInListFn ?lowestDistanceTuple))
+    ;;; proof of recursive case (we have more to do)
+    (lessThan ?lowestDistance ?distance)
+  )
+  (methodForAction
+    (getFrontierLocations ?distance ?frontierSet)
+    (actionSequence
+      (TheList
+        (doAgentPlan
+	       (getNextLocations ?lowestDistanceTuple ?frontierSet (TheSet) ?distance)
+        )
+      )
+    )
+  )
+)
 
 ;;; there is a location to be added
 (preconditionForMethod
   (and
+    (evaluate ?distance (FirstInListFn ?tuple))
+    (evaluate ?currentLocation (SecondInListFn ?tuple))
+    (evaluate ?previousPath (ThirdInListFn ?tuple))
+
+
     (connectedTo ?currentLocation ?nextLocation road)
     ;;; have not visited nextLocation
-    (different (SetDifferenceFn (TheSet ?nextLocation) ?previousPath) TheEmptySet)
+    (evaluate ?nextLocationMinusPreviousPath (SetDifferenceFn (TheSet ?nextLocation) ?previousPath))
+    (different ?nextLocationMinusPreviousPath (TheSet))
     ;;; nextLocation not in addedSet
-    (different (SetDifferenceFn (TheSet ?nextLocation) ?addedSet) TheEmptySet)
+    (evaluate ?nextLocationMinusAddedSet (SetDifferenceFn (TheSet ?nextLocation) ?addedSet))
+    (different ?nextLocationMinusAddedSet (TheSet))
 
     ;;; add new path to frontier
-    (evaluate ?frontierSet (SetAdjoinFn ?frontierSet (TheList (PlusFn ?distance 1) ?nextLocation (TheSet (SetAdjoinFn ?previousPath ?nextLocation)))))
+    (evaluate ?newFrontierSet (SetAdjoinFn ?frontierSet (TheList (PlusFn ?distance 1) ?nextLocation (SetAdjoinFn ?previousPath ?nextLocation))))
     ;;; add location to addedSet
-    (evaluate ?addedSet (SetAdjoinFn ?addedSet ?nextLocation))
+    (evaluate ?newAddedSet (SetAdjoinFn ?addedSet ?nextLocation))
   )
   (methodForAction
-    (getNextLocations ?distance ?currentLocation ?previousPath ?frontierSet ?addedSet)
+    (getNextLocations ?tuple ?frontierSet ?addedSet ?maxDistance)
     (actionSequence
       (TheList
         (doAgentPlan
-          (getNextLocations ?distance ?currentLocation ?previousPath ?frontierSet ?addedSet)
+          (getNextLocations ?tuple ?newFrontierSet ?newAddedSet ?maxDistance)
         )
       )
     )
@@ -32,19 +113,28 @@
 ;;; all locations have been added FIXME this is not needed?
 (preconditionForMethod
   (and
+    (evaluate ?distance (FirstInListFn ?tuple))
+    (evaluate ?currentLocation (SecondInListFn ?tuple))
+    (evaluate ?previousPath (ThirdInListFn ?tuple))
+
     (connectedTo ?currentLocation ?nextLocation road)
-    ;;; there does not exist a nextLocation that is not in addedSet
-    (uninferredSentence (different (SetDifferenceFn (TheSet ?nextLocation) ?addedSet) TheEmptySet))
+    ;;; have not visited nextLocation
+    (evaluate ?nextLocationMinusPreviousPath (SetDifferenceFn (TheSet ?nextLocation) ?previousPath))
+    (different ?nextLocationMinusPreviousPath (TheSet))
+    ;;; nextLocation in addedSet
+    (evaluate ?nextLocationMinusAddedSet (SetDifferenceFn (TheSet ?nextLocation) ?addedSet))
+    (uninferredSentence (different ?nextLocationMinusAddedSet (TheSet)))
+
+    ;;; pop originalTuple
+    (evaluate ?newFrontierSet (SetMinusFn ?frontierSet ?tuple))
   )
   (methodForAction
-    (getNextLocations ?distance ?currentLocation ?previousPath ?frontierSet ?addedSet)
+    (getNextLocations ?tuple ?frontierSet ?addedSet ?maxDistance)
     (actionSequence
       (TheList
-        ;;; forget existing frontierSet
-        (doForget (ist-Information DraculaSearchSpacePlansMt (frontierSet ?frontierSet)))
-        (doClearWorkingMemory)
-        ;;; record frontierSet
-        (doRecord (ist-Information DraculaSearchSpacePlansMt (frontierSet ?frontierSet)))
+        (doAgentPlan
+          (getFrontierLocations ?maxDistance ?newFrontierSet)
+        )
       )
     )
   )
