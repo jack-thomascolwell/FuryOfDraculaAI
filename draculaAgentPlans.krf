@@ -207,7 +207,7 @@
     (getLocationsFromFrontier ?round)
     (actionSequence
       (TheList
-        (doRecord (ist-Information (ResultsMt ?originalMt) (locationsAtDistance ?extracted)))
+        (doRecord (ist-Information (ResultsMtFn ?originalMt) (locationsAtDistance ?extracted)))
       )
     )
   )

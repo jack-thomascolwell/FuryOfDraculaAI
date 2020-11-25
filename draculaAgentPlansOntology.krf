@@ -2,10 +2,10 @@
 
 (genlMt furyOfDraculaAgentPlansMt furyOfDraculaAgentPlansOntologyMt)
 
-(isa ResultsMt UnaryFunction)
-  (arity ResultsMt 1)
-  (arg1Isa ResultsMt Microtheory)
-  (resultIsa ResultsMt Microtheory)
+(isa ResultsMtFn UnaryFunction)
+  (arity ResultsMtFn 1)
+  (arg1Isa ResultsMtFn Microtheory)
+  (resultIsa ResultsMtFn Microtheory)
 
 (isa FrontierLocationsRoundMtFn UnaryFunction)
   (arity FrontierLocationsRoundMtFn 1)
