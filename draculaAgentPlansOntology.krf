@@ -1,0 +1,70 @@
+(in-microtheory furyOfDraculaAgentPlansOntologyMt)
+
+(genlMt furyOfDraculaAgentPlansMt furyOfDraculaAgentPlansOntologyMt)
+
+(isa ResultsMt UnaryFunction)
+  (arity ResultsMt 1)
+  (arg1Isa ResultsMt Microtheory)
+  (resultIsa ResultsMt Microtheory)
+
+(isa FrontierLocationsRoundMtFn UnaryFunction)
+  (arity FrontierLocationsRoundMtFn 1)
+  (arg1Isa FrontierLocationsRoundMtFn Integer)
+  (resultIsa FrontierLocationsRoundMtFn Microtheory)
+
+(isa getLocationsAtDistance ComplexActionPredicate)
+  (arity getLocationsAtDistance 1)
+  (arg1Isa getLocationsAtDistance Microtheory)
+
+(isa getFrontierLocations ComplexActionPredicate)
+  (arity getFrontierLocations 1)
+  (arg1Isa getFrontierLocations Integer)
+
+(isa getNextLocations ComplexActionPredicate)
+  (arity getNextLocations 1)
+  (arg1Isa getNextLocations Integer)
+
+(isa getLocationsFromFrontier ComplexActionPredicate)
+  (arity getLocationsFromFrontier 1)
+  (arg1Isa getLocationsFromFrontier Integer)
+
+(isa distance UnaryPredicate)
+  (arity distance 1)
+  (arg1Isa distance Integer)
+
+(isa startLocation UnaryPredicate)
+  (arity startLocation 1)
+  (arg1Isa startLocation Location)
+
+(isa frontier UnaryPredicate)
+  (arity frontier 1)
+  (arg1Isa frontier Set)
+
+(isa currentDistance UnaryPredicate)
+  (arity currentDistance 1)
+  (arg1Isa currentDistance Integer)
+
+(isa currentLocation UnaryPredicate)
+  (arity currentLocation 1)
+  (arg1Isa currentLocation Location)
+
+(isa currentPath UnaryPredicate)
+  (arity currentPath 1)
+  (arg1Isa currentPath Set)
+
+(isa added UnaryPredicate)
+  (arity added 1)
+  (arg1Isa added Set)
+
+(isa extracted UnaryPredicate)
+  (arity extracted 1)
+  (arg1Isa extracted Set)
+
+(isa originalMt UnaryPredicate)
+  (arity originalMt 1)
+  (arg1Isa originalMt Microtheory)
+
+;;; TESTS
+(in-microtheory frontierTestMt)
+(startLocation CastleDracula)
+(distance 2)

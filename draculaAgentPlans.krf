@@ -1,139 +1,248 @@
 (in-microtheory furyOfDraculaAgentPlansMt)
 
-;;; no more locations in frontier to extract i.e. done
+;;; getLocationsAtDistance PLAN
+
+;;; Initiate frontierSet given start location
 (preconditionForMethod
   (and
-    (uninferredSentence (different ?frontierSet (TheSet)))
+    ;;; extract from microtheory
+    (ist-Information ?microtheory (startLocation ?startLocation))
+    (ist-Information ?microtheory (distance ?distance))
   )
   (methodForAction
-    (getLocationsFromFrontier ?frontierSet ?locationSet)
+    (getLocationsAtDistance ?microtheory)
     (actionSequence
       (TheList
-        (doForget (ist-Information furyOfDraculaResultsMt (frontierLocations ?someLocationSet)))
-        (doClearWorkingMemory)
-        (doRecord (ist-Information furyOfDraculaResultsMt (frontierLocations ?locationSet)))
-      )
-    )
-  )
-)
-
-;;; more locations in frontier to extract
-(preconditionForMethod
-  (and
-    (elementOf ?tuple ?frontierSet)
-    (evaluate ?location (SecondInListFn ?tuple))
-
-    (evaluate ?newFrontierSet (SetMinusFn ?frontierSet ?tuple))
-    (evaluate ?newLocationSet (SetAdjoinFn ?locationSet ?location))
-  )
-  (methodForAction
-    (getLocationsFromFrontier ?frontierSet ?locationSet)
-    (actionSequence
-      (TheList
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn 0) (distance ?distance)))
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn 0) (frontier (TheSet (TheList 0 ?startLocation (TheSet ?startLocation))))))
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn 0) (originalMt ?microtheory)))
         (doAgentPlan
-          (getLocationsFromFrontier ?newFrontierSet ?newLocationSet)
+          (getFrontierLocations 0)
         )
       )
     )
   )
 )
 
-;;; at the end of the frontier no results
+;;; getFrontierLocations PLAN
+
+;;; base case: frontier only contains tuples at max distance
 (preconditionForMethod
   (and
-    (evaluate ?lowestDistance (MinimumFn ?frontierSet FirstInListFn))
+    ;;; extract from microtheory
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (distance ?distance))
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (frontier ?frontier))
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (originalMt ?originalMt))
+
+    ;;; preconditions
+    (evaluate ?lowestDistance (MinimumFn ?frontier FirstInListFn))
     (greaterThanOrEqualTo ?lowestDistance ?distance)
+
+    ;;; increment round number
+    (evaluate ?nextRound (PlusFn ?round 1))
   )
   (methodForAction
-    (getFrontierLocations ?distance ?frontierSet)
+    (getFrontierLocations ?round)
     (actionSequence
       (TheList
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (frontier ?frontier)))
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (originalMt ?originalMt)))
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (extracted (TheSet))))
         (doAgentPlan
-          (getLocationsFromFrontier ?frontierSet (TheSet))
+          (getLocationsFromFrontier ?nextRound)
         )
       )
     )
   )
 )
 
-;;; have more things in frontier
+;;; recursive case: frontier contains tuples below max distance
 (preconditionForMethod
   (and
-    (evaluate ?lowestDistance (MinimumFn ?frontierSet FirstInListFn))
-    (elementOf ?lowestDistanceTuple ?frontierSet)
-    (evaluate ?lowestDistance (FirstInListFn ?lowestDistanceTuple))
-    ;;; proof of recursive case (we have more to do)
+    ;;; extract from microtheory
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (distance ?distance))
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (frontier ?frontier))
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (originalMt ?originalMt))
+
+    ;;; preconditions
+    (evaluate ?lowestDistance (MinimumFn ?frontier FirstInListFn))
     (lessThan ?lowestDistance ?distance)
+
+    (elementOf ?lowestDistanceTuple ?frontier)
+    (evaluate ?lowestDistance (FirstInListFn ?lowestDistanceTuple))
+
+    ;;; increment round number
+    (evaluate ?nextRound (PlusFn ?round 1))
+
+    ;;; remove tuple from frontier
+    (evaluate ?nextFrontier (SetMinusFn ?frontier ?lowestDistanceTuple))
+
+    ;;; extract from tuple
+    (evaluate ?currentLocation (SecondInListFn ?lowestDistanceTuple))
+    (evaluate ?currentPath (ThirdInListFn ?lowestDistanceTuple))
   )
   (methodForAction
-    (getFrontierLocations ?distance ?frontierSet)
+    (getFrontierLocations ?round)
     (actionSequence
       (TheList
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (distance ?distance)))
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (frontier ?nextFrontier)))
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (added (TheSet))))
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (currentLocation ?currentLocation)))
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (currentDistance ?lowestDistance)))
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (currentPath ?currentPath)))
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (originalMt ?originalMt)))
+
+
         (doAgentPlan
-	       (getNextLocations ?lowestDistanceTuple ?frontierSet (TheSet) ?distance)
+          (getNextLocations ?nextRound)
         )
       )
     )
   )
 )
 
-;;; there is a location to be added
+;;; getNextLocations PLAN
+
+;;; base case: all connected locations have been added to the frontier
+(preconditionForMethod
+  (uninferredSentence
+    (and
+      ;;; extract from microtheory
+      (ist-Information (FrontierLocationsRoundMtFn ?round) (currentLocation ?currentLocation))
+      (ist-Information (FrontierLocationsRoundMtFn ?round) (currentPath ?currentPath))
+      (ist-Information (FrontierLocationsRoundMtFn ?round) (currentDistance ?currentDistance))
+      (ist-Information (FrontierLocationsRoundMtFn ?round) (frontier ?frontier))
+      (ist-Information (FrontierLocationsRoundMtFn ?round) (added ?added))
+      (ist-Information (FrontierLocationsRoundMtFn ?round) (distance ?distance))
+
+      ;;; preconditions
+      (connectedTo ?currentLocation ?nextLocation road)
+
+      ;;; nextLocation not in currentPath
+      (evaluate ?nextLocationMinusCurrentPath (SetDifferenceFn (TheSet ?nextLocation) ?currentPath))
+      (different ?nextLocationMinusCurrentPath (TheSet))
+
+      ;;; nextLocation not in added
+      (evaluate ?nextLocationMinusAdded (SetDifferenceFn (TheSet ?nextLocation) ?added))
+      (different ?nextLocationMinusAdded (TheSet))
+    )
+  )
+  (methodForAction
+    (getNextLocations ?round)
+    (actionSequence
+      (TheList
+        (doAgentPlan
+          (getFrontierLocations ?round)
+        )
+      )
+    )
+  )
+)
+
+;;; recursive case: some connected locations still need to be added
 (preconditionForMethod
   (and
-    (evaluate ?distance (FirstInListFn ?tuple))
-    (evaluate ?currentLocation (SecondInListFn ?tuple))
-    (evaluate ?previousPath (ThirdInListFn ?tuple))
+    ;;; extract from microtheory
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (currentLocation ?currentLocation))
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (currentPath ?currentPath))
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (currentDistance ?currentDistance))
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (frontier ?frontier))
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (added ?added))
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (distance ?distance))
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (originalMt ?originalMt))
 
-
+    ;;; preconditions
     (connectedTo ?currentLocation ?nextLocation road)
-    ;;; have not visited nextLocation
-    (evaluate ?nextLocationMinusPreviousPath (SetDifferenceFn (TheSet ?nextLocation) ?previousPath))
-    (different ?nextLocationMinusPreviousPath (TheSet))
-    ;;; nextLocation not in addedSet
-    (evaluate ?nextLocationMinusAddedSet (SetDifferenceFn (TheSet ?nextLocation) ?addedSet))
-    (different ?nextLocationMinusAddedSet (TheSet))
+
+    ;;; nextLocation not in currentPath
+    (evaluate ?nextLocationMinusCurrentPath (SetDifferenceFn (TheSet ?nextLocation) ?currentPath))
+    (different ?nextLocationMinusCurrentPath (TheSet))
+
+    ;;; nextLocation not in added
+    (evaluate ?nextLocationMinusAdded (SetDifferenceFn (TheSet ?nextLocation) ?added))
+    (different ?nextLocationMinusAdded (TheSet))
+
+    ;;; increment round number
+    (evaluate ?nextRound (PlusFn ?round 1))
 
     ;;; add new path to frontier
-    (evaluate ?newFrontierSet (SetAdjoinFn ?frontierSet (TheList (PlusFn ?distance 1) ?nextLocation (SetAdjoinFn ?previousPath ?nextLocation))))
-    ;;; add location to addedSet
-    (evaluate ?newAddedSet (SetAdjoinFn ?addedSet ?nextLocation))
+    (evaluate ?nextFrontier (SetAdjoinFn ?frontier (TheList (PlusFn ?currentDistance 1) ?nextLocation (SetAdjoinFn ?currentPath ?nextLocation))))
+    ;;; add location to added
+    (evaluate ?nextAdded (SetAdjoinFn ?added ?nextLocation))
   )
   (methodForAction
-    (getNextLocations ?tuple ?frontierSet ?addedSet ?maxDistance)
+    (getNextLocations ?round)
     (actionSequence
       (TheList
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (distance ?distance)))
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (frontier ?nextFrontier)))
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (added ?nextAdded)))
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (currentLocation ?currentLocation)))
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (currentDistance ?currentDistance)))
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (currentPath ?currentPath)))
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (originalMt ?originalMt)))
         (doAgentPlan
-          (getNextLocations ?tuple ?newFrontierSet ?newAddedSet ?maxDistance)
+          (getNextLocations ?nextRound)
         )
       )
     )
   )
 )
 
-;;; all locations have been added FIXME this is not needed?
+;;; getLocationsFromFrontier PLAN
+
+;;; base case: all locations have been extracted from the frontier
 (preconditionForMethod
   (and
-    (evaluate ?distance (FirstInListFn ?tuple))
-    (evaluate ?currentLocation (SecondInListFn ?tuple))
-    (evaluate ?previousPath (ThirdInListFn ?tuple))
+    ;;; extract from microtheory
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (frontier ?frontier))
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (extracted ?extracted))
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (originalMt ?originalMt))
 
-    (connectedTo ?currentLocation ?nextLocation road)
-    ;;; have not visited nextLocation
-    (evaluate ?nextLocationMinusPreviousPath (SetDifferenceFn (TheSet ?nextLocation) ?previousPath))
-    (different ?nextLocationMinusPreviousPath (TheSet))
-    ;;; nextLocation in addedSet
-    (evaluate ?nextLocationMinusAddedSet (SetDifferenceFn (TheSet ?nextLocation) ?addedSet))
-    (uninferredSentence (different ?nextLocationMinusAddedSet (TheSet)))
-
-    ;;; pop originalTuple
-    (evaluate ?newFrontierSet (SetMinusFn ?frontierSet ?tuple))
+    ;;; preconditions
+    (uninferredSentence (different ?frontier (TheSet)))
   )
   (methodForAction
-    (getNextLocations ?tuple ?frontierSet ?addedSet ?maxDistance)
+    (getLocationsFromFrontier ?round)
     (actionSequence
       (TheList
+        (doRecord (ist-Information (ResultsMt ?originalMt) (locationsAtDistance ?extracted)))
+      )
+    )
+  )
+)
+
+;;; recursive case: some location still needs to be extracted
+(preconditionForMethod
+  (and
+    ;;; extract from microtheory
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (frontier ?frontier))
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (extracted ?extracted))
+    (ist-Information (FrontierLocationsRoundMtFn ?round) (originalMt ?originalMt))
+
+    ;;; preconditions
+    (elementOf ?tuple ?frontier)
+    (evaluate ?location (SecondInListFn ?tuple))
+
+    ;;; increment round number
+    (evaluate ?nextRound (PlusFn ?round 1))
+
+    ;;; remove tuple from frontier
+    (evaluate ?nextFrontier (SetMinusFn ?frontier ?tuple))
+
+    ;;; add location to extracted
+    (evaluate ?nextExtracted (SetAdjoinFn ?extracted ?location))
+  )
+  (methodForAction
+    (getLocationsFromFrontier ?round)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (frontier ?nextFrontier)))
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (extracted ?nextExtracted)))
+        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (originalMt ?originalMt)))
         (doAgentPlan
-          (getFrontierLocations ?maxDistance ?newFrontierSet)
+          (getLocationsFromFrontier ?nextRound)
         )
       )
     )
