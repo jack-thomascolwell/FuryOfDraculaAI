@@ -1,5 +1,292 @@
 (in-microtheory furyOfDraculaAgentPlansMt)
 
+;;; SECTION getNegativeInformation
+
+;;; getNegativeInformation PLAN
+(preconditionForMethod
+  (and
+    (true)
+  )
+  (methodForAction
+    (getNegativeInformation ?microtheory)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (NegativeInformationMtFn 0) (originalMt ?microtheory)))
+        (doRecord (ist-Information (NegativeInformationMtFn 0) (processed (TheSet))))
+        (doAgentPlan
+          (getNegativePsychicBonds 0)
+        )
+      )
+    )
+  )
+)
+
+;;; getNegativePsychicBonds PLAN
+
+;;; base case: all locations in negative psychicBond regions have been processed
+(preconditionForMethod
+  (uninferredSentence
+    (and
+      ;;; extract from microtheory
+      (ist-Information (NegativeInformationMtFn ?round) (originalMt ?originalMt))
+      (ist-Information (NegativeInformationMtFn ?round) (processed ?processed))
+
+      ;;; preconditions
+      ;;; dracula was not in region n turns ago
+      (ist-Information ?originalMt (usedPsychicBond ?region ?turnsAgo))
+      (ist-Information ?originalMt (locationOnTrail ?draculaLocation ?turnsAgo))
+      (uninferredSentence (region ?draculaLocation ?region))
+
+      ;;; location duple in region not processed
+      (region ?location ?region)
+      (evaluate ?duple (TheList ?location ?turnsAgo))
+      (evaluate ?dupleMinusProcessed (SetDifferenceFn (TheSet ?duple) ?processed))
+      (different ?dupleMinusProcessed (TheSet))
+
+      ;;; increment round number
+      (evaluate ?nextRound (PlusFn ?round 1))
+
+      ;;; add location duple to processed
+      (evaluate ?nextProcessed (SetAdjoinFn ?processed ?duple))
+    )
+  )
+  (methodForAction
+    (getNegativePsychicBonds ?round)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (NegativeInformationMtFn ?round) (processedHunters (TheSet))))
+        (doAgentPlan
+          (getNegativeHunterLocations ?round)
+        )
+      )
+    )
+  )
+)
+
+;;; recursive case: there are locations in negative psychicBond regions that have not been processed
+(preconditionForMethod
+  (and
+    ;;; extract from microtheory
+    (ist-Information (NegativeInformationMtFn ?round) (originalMt ?originalMt))
+    (ist-Information (NegativeInformationMtFn ?round) (processed ?processed))
+
+    ;;; preconditions
+    ;;; dracula was not in region n turns ago
+    (ist-Information ?originalMt (usedPsychicBond ?region ?turnsAgo))
+    (ist-Information ?originalMt (locationOnTrail ?draculaLocation ?turnsAgo))
+    (uninferredSentence (region ?draculaLocation ?region))
+
+    ;;; location duple in region not processed
+    (region ?location ?region)
+    (evaluate ?duple (TheList ?location ?turnsAgo))
+    (evaluate ?dupleMinusProcessed (SetDifferenceFn (TheSet ?duple) ?processed))
+    (different ?dupleMinusProcessed (TheSet))
+
+    ;;; increment round number
+    (evaluate ?nextRound (PlusFn ?round 1))
+
+    ;;; add location duple to processed
+    (evaluate ?nextProcessed (SetAdjoinFn ?processed ?duple))
+  )
+  (methodForAction
+    (getNegativePsychicBonds ?round)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (originalMt ?originalMt)))
+        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (processed ?nextProcessed)))
+        (doAgentPlan
+          (getNegativePsychicBonds ?nextRound)
+        )
+      )
+    )
+  )
+)
+
+;;; getNegativeHunterLocations PLAN
+
+;;; base case: all hunters with previous locations have been processed i.e. done
+(preconditionForMethod
+  (and
+    ;;; extract from microtheory
+    (ist-Information (NegativeInformationMtFn ?round) (originalMt ?originalMt))
+    (ist-Information (NegativeInformationMtFn ?round) (processed ?processed))
+    (ist-Information (NegativeInformationMtFn ?round) (processedHunters ?processedHunters))
+
+
+    (uninferredSentence
+      (and
+        ;;; extract from originalMt
+        (ist-Information ?originalMt (previouslyLocated ?hunter ?previousLocations))
+
+        ;;; hunter not processed
+        (evaluate ?hunterMinusProcessedHunters (SetDifferenceFn (TheSet ?hunter) ?processedHunters))
+        (different ?hunterMinusProcessedHunters (TheSet))
+      )
+    )
+  )
+  (methodForAction
+    (getNegativeHunterLocations ?round)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (ResultsMtFn ?originalMt) (negativeSearchSpace ?processed)))
+      )
+    )
+  )
+)
+
+;;; recursive case: there are hunters with previous locations that have not been processed
+(preconditionForMethod
+  (and
+    (ist-Information (NegativeInformationMtFn ?round) (originalMt ?originalMt))
+    (ist-Information (NegativeInformationMtFn ?round) (processed ?processed))
+    (ist-Information (NegativeInformationMtFn ?round) (processedHunters ?processedHunters))
+
+    ;;; extract from originalMt
+    (ist-Information ?originalMt (previouslyLocated ?hunter ?previousLocations))
+
+    ;;; hunter not processed
+    (evaluate ?hunterMinusProcessedHunters (SetDifferenceFn (TheSet ?hunter) ?processedHunters))
+    (different ?hunterMinusProcessedHunters (TheSet))
+
+    ;;; increment round number
+    (evaluate ?nextRound (PlusFn ?round 1))
+
+    ;;; add hunter to processedHunters
+    (evaluate ?nextProcessedHunters (SetAdjoinFn ?processedHunters ?hunter))
+  )
+  (methodForAction
+    (getNegativeHunterLocations ?round)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (originalMt ?originalMt)))
+        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (processed ?processed)))
+        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (index 1)))
+        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (previousLocations ?previousLocations)))
+        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (processedHunters ?nextProcessedHunters)))
+        (doAgentPlan
+          (getLocationsFromHunter ?nextRound)
+        )
+      )
+    )
+  )
+)
+
+;;; getLocationsFromHunter PLAN
+
+;;; base case: index > length of list
+(preconditionForMethod
+  (and
+    ;;; extract from microtheory
+    (ist-Information (NegativeInformationMtFn ?round) (index ?index))
+    (ist-Information (NegativeInformationMtFn ?round) (previousLocations ?previousLocations))
+
+    (evaluate ?length (LengthOfListFn ?previousLocations))
+
+    (greaterThan ?index ?length)
+  )
+  (methodForAction
+    (getLocationsFromHunter ?round)
+    (actionSequence
+      (TheList
+        (doAgentPlan
+          (getNegativeHunterLocations ?round)
+        )
+      )
+    )
+  )
+)
+
+;;; recursive case: index <= length of list and dracula was not at the location
+(preconditionForMethod
+  (and
+    ;;; extract from microtheory
+    (ist-Information (NegativeInformationMtFn ?round) (originalMt ?originalMt))
+    (ist-Information (NegativeInformationMtFn ?round) (processed ?processed))
+    (ist-Information (NegativeInformationMtFn ?round) (index ?index))
+    (ist-Information (NegativeInformationMtFn ?round) (previousLocations ?previousLocations))
+    (ist-Information (NegativeInformationMtFn ?round) (processedHunters ?processedHunters))
+
+    (evaluate ?length (LengthOfListFn ?previousLocations))
+
+    (lessThanOrEqualTo ?index ?length)
+
+
+    (evaluate ?location (NthInListFn ?index ?previousLocations))
+
+    (uninferredSentence (ist-Information ?originalMt (locationOnTrail ?location ?index)))
+
+    (evaluate ?duple (TheList ?location ?index))
+
+    ;;; increment round number
+    (evaluate ?nextRound (PlusFn ?round 1))
+
+    ;;; increment index
+    (evaluate ?nextIndex (PlusFn ?index 1))
+
+    ;;; add location duple to processed
+    (evaluate ?nextProcessed (SetAdjoinFn ?processed ?duple))
+  )
+  (methodForAction
+    (getLocationsFromHunter ?round)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (originalMt ?originalMt)))
+        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (processed ?nextProcessed)))
+        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (index ?nextIndex)))
+        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (previousLocations ?previousLocations)))
+        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (processedHunters ?processedHunters)))
+        (doAgentPlan
+          (getLocationsFromHunter ?nextRound)
+        )
+      )
+    )
+  )
+)
+
+;;; recursive case: index <= length of list and dracula was at the location
+(preconditionForMethod
+  (and
+    ;;; extract from microtheory
+    (ist-Information (NegativeInformationMtFn ?round) (originalMt ?originalMt))
+    (ist-Information (NegativeInformationMtFn ?round) (processed ?processed))
+    (ist-Information (NegativeInformationMtFn ?round) (index ?index))
+    (ist-Information (NegativeInformationMtFn ?round) (previousLocations ?previousLocations))
+    (ist-Information (NegativeInformationMtFn ?round) (processedHunters ?processedHunters))
+
+    (evaluate ?length (LengthOfListFn ?previousLocations))
+
+    (lessThanOrEqualTo ?index ?length)
+
+
+    (evaluate ?location (NthInListFn ?index ?previousLocations))
+
+    (ist-Information ?originalMt (locationOnTrail ?location ?index))
+
+    ;;; increment round number
+    (evaluate ?nextRound (PlusFn ?round 1))
+
+    ;;; increment index
+    (evaluate ?nextIndex (PlusFn ?index 1))
+  )
+  (methodForAction
+    (getLocationsFromHunter ?round)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (originalMt ?originalMt)))
+        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (processed ?processed)))
+        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (index ?nextIndex)))
+        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (previousLocations ?previousLocations)))
+        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (processedHunters ?processedHunters)))
+        (doAgentPlan
+          (getLocationsFromHunter ?nextRound)
+        )
+      )
+    )
+  )
+)
+
+;;; SECTION getLocationsAtDistance
+
 ;;; getLocationsAtDistance PLAN
 
 ;;; Initiate frontierSet given start location

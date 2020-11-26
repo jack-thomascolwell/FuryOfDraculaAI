@@ -2,6 +2,8 @@
 
 (genlMt furyOfDraculaAgentPlansMt furyOfDraculaAgentPlansOntologyMt)
 
+;;; SECTION getLocationsAtDistance
+
 (isa ResultsMtFn UnaryFunction)
   (arity ResultsMtFn 1)
   (arg1Isa ResultsMtFn Microtheory)
@@ -64,7 +66,35 @@
   (arity originalMt 1)
   (arg1Isa originalMt Microtheory)
 
-;;; TESTS
-(in-microtheory frontierTestMt)
+;;; SECTION getNegativeInformation
+(isa NegativeInformationMtFn UnaryFunction)
+  (arity NegativeInformationMtFn 1)
+  (arg1Isa NegativeInformationMtFn Integer)
+  (resultIsa NegativeInformationMtFn Microtheory)
+
+(isa getNegativeInformation ComplexActionPredicate)
+  (arity getNegativeInformation 1)
+  (arg1Isa getNegativeInformation Microtheory)
+
+(isa getNegativePsychicBonds ComplexActionPredicate)
+  (arity getNegativePsychicBonds 1)
+  (arg1Isa getNegativePsychicBonds Integer)
+(isa getNegativeHunterLocations ComplexActionPredicate)
+  (arity getNegativeHunterLocations 1)
+  (arg1Isa getNegativeHunterLocations Integer)
+(isa getLocationsFromHunter ComplexActionPredicate)
+  (arity getLocationsFromHunter 1)
+  (arg1Isa getLocationsFromHunter Integer)
+
+;;; SECTION tests
+
+;;; getNegativeInformation test
+(in-microtheory negativeSearchTestMt)
+(previouslyLocated MinaHarker (TheList CastleDracula Galatz Klausenburg))
+(usedPsychicBond Brittanica 2)
+(locationOnTrail Galatz 2)
+
+;;; getLocationsAtDistanceTest
+(in-microtheory locationsAtDistanceTestMt)
 (startLocation CastleDracula)
 (distance 2)
