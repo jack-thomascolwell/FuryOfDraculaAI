@@ -96,5 +96,5 @@
 
 ;;; getLocationsAtDistanceTest
 (in-microtheory locationsAtDistanceTestMt)
-(startLocation CastleDracula)
+(startLocation London)
 (distance 2)
