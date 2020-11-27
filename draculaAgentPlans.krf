@@ -380,7 +380,6 @@
         (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (currentPath ?currentPath)))
         (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (originalMt ?originalMt)))
 
-
         (doAgentPlan
           (getNextLocations ?nextRound)
         )
@@ -402,6 +401,7 @@
       (ist-Information (FrontierLocationsRoundMtFn ?round) (frontier ?frontier))
       (ist-Information (FrontierLocationsRoundMtFn ?round) (added ?added))
       (ist-Information (FrontierLocationsRoundMtFn ?round) (distance ?distance))
+      (ist-Information (FrontierLocationsRoundMtFn ?round) (originalMt ?originalMt))
 
       ;;; preconditions
       (connectedTo ?currentLocation ?nextLocation ?way)
@@ -414,6 +414,22 @@
       ;;; nextLocation not in added
       (evaluate ?nextLocationMinusAdded (SetDifferenceFn (TheSet ?nextLocation) ?added))
       (different ?nextLocationMinusAdded (TheSet))
+
+      ;;; nextLocation not a forbidden duple
+      (ist-Information ?originalMt (negativeSearchSpace ?negativeSearchSpace))
+      (ist-Information ?originalMt (distance ?maxDistance))
+      (evaluate ?turnsAgo (DifferenceFn ?maxDistance (PlusFn 1 ?currentDistance)))
+      (evaluate ?duple (TheList ?nextLocation ?turnsAgo))
+      (evaluate ?dupleMinusNegativeSearchSpace (SetDifferenceFn (TheSet ?duple) ?negativeSearchSpace))
+      (different ?dupleMinusNegativeSearchSpace (TheSet))
+
+      ;;; increment round number
+      (evaluate ?nextRound (PlusFn ?round 1))
+
+      ;;; add new path to frontier
+      (evaluate ?nextFrontier (SetAdjoinFn ?frontier (TheList (PlusFn ?currentDistance 1) ?nextLocation (SetAdjoinFn ?currentPath ?nextLocation))))
+      ;;; add location to added
+      (evaluate ?nextAdded (SetAdjoinFn ?added ?nextLocation))
     )
   )
   (methodForAction
@@ -451,6 +467,14 @@
     ;;; nextLocation not in added
     (evaluate ?nextLocationMinusAdded (SetDifferenceFn (TheSet ?nextLocation) ?added))
     (different ?nextLocationMinusAdded (TheSet))
+
+    ;;; nextLocation not a forbidden duple
+    (ist-Information ?originalMt (negativeSearchSpace ?negativeSearchSpace))
+    (ist-Information ?originalMt (distance ?maxDistance))
+    (evaluate ?turnsAgo (DifferenceFn ?maxDistance (PlusFn 1 ?currentDistance)))
+    (evaluate ?duple (TheList ?nextLocation ?turnsAgo))
+    (evaluate ?dupleMinusNegativeSearchSpace (SetDifferenceFn (TheSet ?duple) ?negativeSearchSpace))
+    (different ?dupleMinusNegativeSearchSpace (TheSet))
 
     ;;; increment round number
     (evaluate ?nextRound (PlusFn ?round 1))

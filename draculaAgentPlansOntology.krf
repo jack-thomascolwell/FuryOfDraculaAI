@@ -96,5 +96,6 @@
 
 ;;; getLocationsAtDistanceTest
 (in-microtheory locationsAtDistanceTestMt)
-(startLocation London)
+(startLocation CastleDracula)
 (distance 2)
+(negativeSearchSpace (TheSet (TheList Klausenburg 1)))
