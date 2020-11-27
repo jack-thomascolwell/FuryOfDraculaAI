@@ -20,16 +20,19 @@
 (connectedTo Edinburgh Manchester road)
 (connectedTo Edinburgh Manchester whiteTrain)
 (connectedTo Edinburgh NorthSea port)
+(connectedTo NorthSea Edinburgh port)
 ;;;Galway
 (isa Galway SmallCity)
 (region Galway Brittanica)
 (connectedTo Galway Dublin road)
 (connectedTo Galway NorthAtlantic port)
+(connectedTo NorthAtlantic Galway port)
 ;;;Dublin
 (isa Dublin SmallCity)
 (region Dublin Brittanica)
 (connectedTo Dublin Galway road)
 (connectedTo Dublin IrishSea port)
+(connectedTo IrishSea Dublin port)
 ;;;Manchester
 (isa Manchester LargeCity)
 (region Manchester Brittanica)
@@ -46,6 +49,7 @@
 (connectedTo Liverpool Swansea road)
 (connectedTo Liverpool Manchester whiteTrain)
 (connectedTo Liverpool IrishSea port)
+(connectedTo IrishSea Liverpool port)
 ;;;Swansea
 (isa Swansea SmallCity)
 (region Swansea Brittanica)
@@ -53,12 +57,14 @@
 (connectedTo Swansea London road)
 (connectedTo Swansea London whiteTrain)
 (connectedTo Swansea IrishSea port)
+(connectedTo IrishSea Swansea port)
 ;;;Plymouth
 (isa Plymouth SmallCity)
 (region Plymouth Brittanica)
 (connectedTo Plymouth London road)
 (connectedTo Plymouth London whiteTrain)
 (connectedTo Plymouth EnglishChannel port)
+(connectedTo EnglishChannel Plymouth port)
 ;;;London
 (isa London LargeCity)
 (region London Brittanica)
@@ -69,6 +75,7 @@
 (connectedTo London Swansea whiteTrain)
 (connectedTo London Plymouth whiteTrain)
 (connectedTo London EnglishChannel port)
+(connectedTo EnglishChannel London port)
 
 ;;;Gallia
 ;;;Le Havre
@@ -79,6 +86,7 @@
 (connectedTo LeHavre Brussels road)
 (connectedTo LeHavre Paris whiteTrain)
 (connectedTo LeHavre EnglishChannel port)
+(connectedTo EnglishChannel LeHavre port)
 ;;;Nantes
 (isa Nantes LargeCity)
 (region Nantes Gallia)
@@ -87,6 +95,7 @@
 (connectedTo Nantes ClermontFerrand road)
 (connectedTo Nantes Bordeaux road)
 (connectedTo Nantes NorthAtlantic port)
+(connectedTo NorthAtlantic Nantes port)
 ;;;Bordeaux
 (isa Bordeaux LargeCity)
 (region Bordeaux Gallia)
@@ -97,6 +106,7 @@
 (connectedTo Bordeaux Paris whiteTrain)
 (connectedTo Bordeaux Saragossa whiteTrain)
 (connectedTo Bordeaux NorthAtlantic port)
+(connectedTo NorthAtlantic Bordeaux port)
 ;;;Toulouse
 (isa Toulouse SmallCity)
 (region Toulouse Gallia)
@@ -126,6 +136,7 @@
 (connectedTo Marseilles Paris whiteTrain)
 (connectedTo Marseilles Milan yellowTrain)
 (connectedTo Marseilles MediterraneanSea port)
+(connectedTo MediterraneanSea Marseilles port)
 ;;;Paris
 (isa Paris LargeCity)
 (region Paris Gallia)
@@ -173,6 +184,7 @@
 (connectedTo Santander Bordeaux road)
 (connectedTo Santander Madrid whiteTrain)
 (connectedTo Santander SouthAtlantic port)
+(connectedTo SouthAtlantic Santander port)
 ;;;Madrid
 (isa Madrid LargeCity)
 (region Madrid Iberia)
@@ -199,6 +211,7 @@
 (connectedTo Alicante Madrid road)
 (connectedTo Alicante Saragossa road)
 (connectedTo Alicante MediterraneanSea port)
+(connectedTo MediterraneanSea Alicante port)
 ;;;Barcelona
 (isa Barcelona LargeCity)
 (region Barcelona Iberia)
@@ -207,6 +220,7 @@
 (connectedTo Barcelona Alicante whiteTrain)
 (connectedTo Barcelona Saragossa whiteTrain)
 (connectedTo Barcelona MediterraneanSea port)
+(connectedTo MediterraneanSea Barcelona port)
 ;;;Saragossa
 (isa Saragossa SmallCity)
 (region Saragossa Iberia)
@@ -226,6 +240,7 @@
 (connectedTo Lisbon Cadiz road)
 (connectedTo Lisbon Madrid whiteTrain)
 (connectedTo Lisbon SouthAtlantic port)
+(connectedTo SouthAtlantic Lisbon port)
 ;;;Cadiz
 (isa Cadiz LargeCity)
 (region Cadiz Iberia)
@@ -233,6 +248,7 @@
 (connectedTo Cadiz Madrid road)
 (connectedTo Cadiz Granada road)
 (connectedTo Cadiz SouthAtlantic port)
+(connectedTo SouthAtlantic Cadiz port)
 
 ;;;Germania
 ;;;Amsterdam
@@ -241,6 +257,7 @@
 (connectedTo Amsterdam Cologne road)
 (connectedTo Amsterdam Brussels road)
 (connectedTo Amsterdam NorthSea port)
+(connectedTo NorthSea Amsterdam port)
 ;;;Cologne
 (isa Cologne LargeCity)
 (region Cologne Germania)
@@ -267,6 +284,7 @@
 (isa Hamburg LargeCity)
 (region Hamburg Germania)
 (connectedTo Hamburg NorthSea port)
+(connectedTo NorthSea Hamburg port)
 (connectedTo Hamburg Cologne road)
 (connectedTo Hamburg Leipzig road)
 (connectedTo Hamburg Berlin road)
@@ -341,6 +359,7 @@
 (isa Genoa LargeCity)
 (region Genoa Italia)
 (connectedTo Genoa TyrrhenianSea port)
+(connectedTo TyrrhenianSea Genoa port)
 (connectedTo Genoa Marseilles road)
 (connectedTo Genoa Florence road)
 (connectedTo Genoa Venice road)
@@ -352,7 +371,9 @@
 (isa Cagliari SmallCity)
 (region Cagliari Italia)
 (connectedTo Cagliari Mediterranean port)
+(connectedTo Mediterranean Cagliari port)
 (connectedTo Cagliari TyrrhenianSea port)
+(connectedTo TyrrhenianSea Cagliari port)
 ;;;Florence
 (isa Florence SmallCity)
 (region Florence Italia)
@@ -365,6 +386,7 @@
 (isa Rome LargeCity)
 (region Rome Italia)
 (connectedTo Rome TyrrhenianSea port)
+(connectedTo TyrrhenianSea Rome port)
 (connectedTo Rome Florence road)
 (connectedTo Rome Naples road)
 (connectedTo Rome Bari road)
@@ -374,6 +396,7 @@
 (isa Naples LargeCity)
 (region Naples Italia)
 (connectedTo Naples TyrrhenianSea port)
+(connectedTo TyrrhenianSea Naples port)
 (connectedTo Naples Rome road)
 (connectedTo Naples Bari road)
 (connectedTo Naples Rome yellowTrain)
@@ -382,6 +405,7 @@
 (isa Bari SmallCity)
 (region Bari Italia)
 (connectedTo Bari AdriaticSea port)
+(connectedTo AdriaticSea Bari port)
 (connectedTo Bari Rome road)
 (connectedTo Bari Naples road)
 (connectedTo Bari Naples yellowTrain)
@@ -389,6 +413,7 @@
 (isa Venice SmallCity)
 (region Italia)
 (connectedTo Venice AdriaticSea port)
+(connectedTo AdriaticSea Venice port)
 (connectedTo Venice Munich road)
 (connectedTo Venice Milan road)
 (connectedTo Venice Genoa road)
@@ -514,6 +539,7 @@
 (isa Valona SmallCity)
 (region Valona Baltica)
 (connectedTo Valona AdriaticSea port)
+(connectedTo AdriaticSea Valona port)
 (connectedTo Valona Sarajevo road)
 (connectedTo Valona Sofia road)
 (connectedTo Valona Salonica road)
@@ -522,6 +548,7 @@
 (isa Salonica SmallCity)
 (region Salonica Baltica)
 (connectedTo Salonica IonianSea port)
+(connectedTo IonianSea Salonica port)
 (connectedTo Salonica Sofia road)
 (connectedTo Salonica Valona road)
 (connectedTo Salonica Sofia yellowTrain)
@@ -529,11 +556,13 @@
 (isa Athens LargeCity)
 (region Athens Baltica)
 (connectedTo Athens IonianSea port)
+(connectedTo IonianSea Athens port)
 (connectedTo Athens Valona road)
 ;;;Varna
 (isa Varna LargeCity)
 (region Varna Baltica)
 (connectedTo Varna BlackSea port)
+(connectedTo BlackSea Varna port)
 (connectedTo Varna Sofia road)
 (connectedTo Varna Constanta road)
 (connectedTo Varna Sofia yellowTrain)
@@ -541,6 +570,7 @@
 (isa Constanta LargeCity)
 (region Constanta Baltica)
 (connectedTo Constanta BlackSea port)
+(connectedTo BlackSea Constanta port)
 (connectedTo Constanta Varna road)
 (connectedTo Constanta Bucharest road)
 (connectedTo Constanta Bucharest  yellowTrain)
