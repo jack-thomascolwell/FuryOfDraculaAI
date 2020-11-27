@@ -157,7 +157,7 @@
 (connectedTo Strasbourg Brussels road)
 (connectedTo Strasbourg Cologne road)
 (connectedTo Strasbourg Frankfurt road)
-(connectedTo Strasbourg Nuremburg road)
+(connectedTo Strasbourg Nuremberg road)
 (connectedTo Strasbourg Zurich road)
 (connectedTo Strasbourg Geneva road)
 (connectedTo Strasbourg Frankfurt whiteTrain)
@@ -192,7 +192,7 @@
 (connectedTo Madrid Santander road)
 (connectedTo Madrid Saragossa road)
 (connectedTo Madrid Alicante road)
-(connectedTo Madrid Grenada road)
+(connectedTo Madrid Granada road)
 (connectedTo Madrid Cadiz road)
 (connectedTo Madrid Lisbon whiteTrain)
 (connectedTo Madrid Santander whiteTrain)
@@ -599,17 +599,17 @@
 (isa EnglishChannel Sea)
 (connectedTo EnglishChannel NorthSea seaAdjacent)
 (connectedTo EnglishChannel NorthAtlantic seaAdjacent)
-SouthAtlantic
+;;;SouthAtlantic
 (isa SouthAtlantic Sea)
 (connectedTo SouthAtlantic NorthAtlantic seaAdjacent)
-(connectedTo SouthAtlantic Mediterranean seaAdjacent)
+(connectedTo SouthAtlantic MediterraneanSea seaAdjacent)
 ;;;Mediterranean
-(isa Mediterranean Sea)
-(connectedTo Mediterranean SouthAtlantic seaAdjacent)
-(connectedTo Mediterranean Tyrrhenian seaAdjacent)
+(isa MediterraneanSea Sea)
+(connectedTo MediterraneanSea SouthAtlantic seaAdjacent)
+(connectedTo MediterraneanSea TyrrhenianSea seaAdjacent)
 ;;;TyrrhenianSea
 (isa TyrrhenianSea Sea)
-(connectedTo TyrrhenianSea Mediterranean seaAdjacent)
+(connectedTo TyrrhenianSea MediterraneanSea seaAdjacent)
 (connectedTo TyrrhenianSea IonianSea seaAdjacent)
 ;;;AdriaticSea
 (isa AdriaticSea Sea)
