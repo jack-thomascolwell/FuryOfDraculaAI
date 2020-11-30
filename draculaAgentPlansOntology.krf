@@ -125,6 +125,14 @@
 (arity stressLevel 1)
 (arg1Isa stressLevel Microtheory)
 
+(isa getNextLocations ComplexActionPredicate)
+(arity getNextLocations 1)
+(arg1Isa getNextLocations Integer)
+
+(isa searchSpace UnaryPredicate)
+(arity searchSpace 1)
+(arg1Isa searchSpace Integer)
+
 (isa deciderPlan ComplexActionPredicate)
 (arity deciderPlan 1)
 (arg1Isa deciderPlan Microtheory)

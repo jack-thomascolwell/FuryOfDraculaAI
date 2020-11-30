@@ -679,16 +679,16 @@
 
           ;;; figure out the distances from all the hunters
           (doAgentPlan (findDistance ?gamestate MinaHarker))
-          		(doAgentPlan (clearMt DijkstraRoundMtFn 0))
+          		(doAgentPlan (clearMt DijkstrasRoundMtFn 0))
 
           (doAgentPlan (findDistance ?gamestate VanHelsing))
-          (doAgentPlan (clearMt DijkstraRoundMtFn 0))
+          (doAgentPlan (clearMt DijkstrasRoundMtFn 0))
 
           	(doAgentPlan (findDistance ?gamestate LordGodalming))
-          	(doAgentPlan (clearMt DijkstraRoundMtFn 0))
+          	(doAgentPlan (clearMt DijkstrasRoundMtFn 0))
 
           	(doAgentPlan (findDistance ?gamestate JohnSeward))
-          	(doAgentPlan (clearMt DijkstraRoundMtFn 0))
+          	(doAgentPlan (clearMt DijkstrasRoundMtFn 0))
 
           	;;; don’t need to call the maturingHeuristic horn clause since it can be queried
 
@@ -737,7 +737,7 @@
 
 ;;; calculate stress level based on above info --> save as ?stress
 ;;;normalize searchspace
-(evaluate ?searchspaceNorm (QuotientFn ?searchspace 88))
+(evaluate ?searchspaceNorm (QuotientFn ?searchSpace 88))
 
 ;;; normalize all four hunter distances
 (evaluate ?MHDistanceNorm (QuotientFn ?MHDistance 10))
