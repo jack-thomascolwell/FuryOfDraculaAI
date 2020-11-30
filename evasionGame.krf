@@ -47,6 +47,12 @@
 	(comment location "location refers to the city on the board that an agent is in")
 
 
+(isa shortestDistance Predicate)
+(arity shortestDistance 2)
+(arg1Isa shortestDistance Agent)
+(arg2Isa shortestDistance Integer)
+
+
 ;;; horn clause to infer the region that a hunter is in based on their city.
 (<== (agentInRegion ?agent ?region)
   (location ?agent ?city)
@@ -58,6 +64,12 @@
 	(arg2isa hasCard Card)
   (arg3isa hasCard Integer)
   (comment hasCard "hasCard specifies that some Agent has an amount of some Card")
+
+(isa cardHand Predicate)
+(arity cardHand 2)
+(arg1isa cardHand Agent)
+(arg2isa cardHand List)
+(comment "cardHand specifies that some Agent has a list of cards")
 
 (isa inDiscard Predicate)
   (arity inDiscard 2)
@@ -91,3 +103,6 @@
   (damage Agent ?damage)
   (greaterThan ?maxDamage ?damage)
 )
+
+
+

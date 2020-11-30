@@ -302,3 +302,359 @@
     )
   )
 )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;;; findDistance plan and sub plans
+
+(preconditionForMethod
+  (and
+  (ist-Information ?microtheory (location Dracula ?currentLocation))
+  (ist-Information ?microtheory (location ?hunter ?goalLocation))
+
+
+  )
+  (methodForAction
+    (findDistance ?microtheory ?hunter)
+
+    (actionSequence
+      (TheList
+      (doClearWorkingMemory)
+  ;;; bake the initial distance of 0 into the starting frontier
+ (doRecord (ist-Information (DijkstrasRoundMtFn 0) (frontier  (TheSet(TheList 0 ?currentLocation) ))))
+(doRecord (ist-Information (DijkstrasRoundMtFn 0) (visitedSet (TheSet))))
+(doRecord (ist-Information (DijkstrasRoundMtFn 0) (currentLocation ?currentLocation)))
+(doRecord (ist-Information (DijkstrasRoundMtFn 0) (goalLocation ?goalLocation)))
+(doRecord (ist-Information (DijkstrasRoundMtFn 0) (hunter ?hunter)))
+        (doRecord (ist-Information (DijkstrasRoundMtFn 0) (originalMt ?microtheory)))
+        (doAgentPlan
+          (dijkstra 0)
+        )
+      )
+    )
+  )
+)
+
+
+
+
+;;; dikstra base case: you’ve finally reached goalLocation!
+(preconditionForMethod
+  (and
+     ;;; extract from microtheory
+    (ist-Information (DijkstrasRoundMtFn ?round) (frontier ?frontier))
+ (ist-Information (DijkstrasRoundMtFn ?round) (visitedSet ?visitedSet))
+ (ist-Information (DijkstrasRoundMtFn ?round) (goalLocation ?goalLocation))
+ (ist-Information (DijkstrasRoundMtFn ?round) (hunter ?hunter))
+    (ist-Information (DijkstrasRoundMtFn ?round) (originalMt ?originalMt))
+
+
+
+;;; preconditions
+ ;;; get the tuple with the lowest distance value
+    (evaluate ?lowestDistance (MinimumFn ?frontier FirstInListFn))
+    (elementOf ?lowestDistanceTuple ?frontier)
+    (evaluate ?lowestDistance (FirstInListFn ?lowestDistanceTuple))
+
+    ;;; increment round number
+    (evaluate ?nextRound (PlusFn ?round 1))
+
+    ;;; remove tuple from frontier
+    (evaluate ?nextFrontier (SetMinusFn ?frontier ?lowestDistanceTuple))
+
+    ;;; extract from tuple
+    (evaluate ?currentLocation (SecondInListFn ?lowestDistanceTuple))
+
+
+    ;;; you’ve reached goal!
+     (evaluate ?currentLocation ?goalLocation)
+
+  )
+ (methodForAction
+    (dijkstra ?round)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (ResultsMtFn ?originalMt) (shortestDistance ?hunter ?lowestDistance)))
+      )
+    )
+  )
+)
+
+
+
+;;; dikstra recursive case: you haven’t reached goalLocation yet!
+(preconditionForMethod
+  (and
+    ;;; extract from microtheory
+    (ist-Information (DijkstrasRoundMtFn ?round) (frontier ?frontier))
+ (ist-Information (DijkstrasRoundMtFn ?round) (visitedSet ?visitedSet))
+ (ist-Information (DijkstrasRoundMtFn ?round) (goalLocation ?goalLocation))
+ (ist-Information (DijkstrasRoundMtFn ?round) (hunter ?hunter))
+    (ist-Information (DijkstrasRoundMtFn ?round) (originalMt ?originalMt))
+
+    ;;; preconditions
+
+    ;;; get the tuple with the lowest distance value
+    (evaluate ?lowestDistance (MinimumFn ?frontier FirstInListFn))
+    (elementOf ?lowestDistanceTuple ?frontier)
+    (evaluate ?lowestDistance (FirstInListFn ?lowestDistanceTuple))
+
+    ;;; increment round number
+    (evaluate ?nextRound (PlusFn ?round 1))
+
+    ;;; extract from tuple
+    (evaluate ?currentLocation (SecondInListFn ?lowestDistanceTuple))
+
+    ;;; if the location is the hunter’s location, break out of this plan and go to the base case plan!
+     (different ?currentLocation ?goalLocation)
+
+    ;;; if you’ve visited this location before, break out of this plan and go to plan that calls this one
+    (evaluate ?currLocationMinusVisitedSet (SetDifferenceFn (TheSet ?currentLocation) ?visitedSet))
+   (different ?currLocationMinusVisitedSet (TheSet))
+
+    ;;; remove tuple from frontier
+    (evaluate ?nextFrontier (SetMinusFn ?frontier ?lowestDistanceTuple))
+
+
+
+
+
+
+
+
+   ;;; add this location to the visited set
+   (evaluate ?newVisitedSet (SetAdjoinFn ?visitedSet ?currentLocation))
+
+
+  )
+  (methodForAction
+    (dijkstra ?round)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (distance ?lowestDistance)))
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (frontier ?nextFrontier)))
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (visitedSet ?newVisitedSet)))
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (goalLocation ?goalLocation)))
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (added (TheSet))))
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (hunter ?hunter)))
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (currentLocation ?currentLocation)))
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (originalMt ?originalMt)))
+
+        (doAgentPlan
+	;;; add all eligible neighbors to frontier w/ updated distance
+          (getNextLocations ?nextRound)
+        )
+      )
+    )
+  )
+)
+
+;;; dijkstra temporary case: the location w/ the shortest path has been visited before
+(preconditionForMethod
+  (and
+    ;;; extract from microtheory
+    (ist-Information (DijkstrasRoundMtFn ?round) (frontier ?frontier))
+ (ist-Information (DijkstrasRoundMtFn ?round) (visitedSet ?visitedSet))
+ (ist-Information (DijkstrasRoundMtFn ?round) (goalLocation ?goalLocation))
+ (ist-Information (DijkstrasRoundMtFn ?round) (hunter ?hunter))
+    (ist-Information (DijkstrasRoundMtFn ?round) (originalMt ?originalMt))
+
+    ;;; preconditions
+
+    ;;; get the tuple with the lowest distance value
+    (evaluate ?lowestDistance (MinimumFn ?frontier FirstInListFn))
+    (elementOf ?lowestDistanceTuple ?frontier)
+    (evaluate ?lowestDistance (FirstInListFn ?lowestDistanceTuple))
+
+    ;;; increment round number
+    (evaluate ?nextRound (PlusFn ?round 1))
+
+    ;;; extract from tuple
+    (evaluate ?currentLocation (SecondInListFn ?lowestDistanceTuple))
+
+    ;;; if the location is the hunter’s location, break out of this plan and go to the base case plan!
+     (different ?currentLocation ?goalLocation)
+
+    ;;; if you’ve visited this location before, call the recursive dijkstra plan w/ the same round
+    (evaluate ?currLocationMinusVisitedSet (SetDifferenceFn (TheSet ?currentLocation) ?visitedSet))
+   (evaluate ?currLocationMinusVisitedSet (TheSet))
+
+    ;;; remove tuple from frontier
+    (evaluate ?nextFrontier (SetMinusFn ?frontier ?lowestDistanceTuple))
+
+
+
+  )
+  (methodForAction
+    (dijkstra ?round)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (frontier ?nextFrontier)))
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (visitedSet ?visitedSet)))
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (goalLocation ?goalLocation)))
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (hunter ?hunter)))
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (originalMt ?originalMt)))
+
+        (doAgentPlan
+	;;; call the recursive dijkstra plan w/ the same round number
+          (dijkstra ?nextRound)
+        )
+      )
+    )
+  )
+)
+
+
+;;; get next locations base case: all connected locations have been added to the frontier
+(preconditionForMethod
+  (uninferredSentence
+    (and
+      ;;; extract from microtheory
+      (ist-Information (DijkstrasRoundMtFn ?round) (currentLocation ?currentLocation))
+      (ist-Information (DijkstrasRoundMtFn ?round) (visitedSet ?visitedSet))
+         (ist-Information (DijkstrasRoundMtFn ?round) (frontier ?frontier))
+      (ist-Information (DijkstrasRoundMtFn ?round) (added ?added))
+      (ist-Information (DijkstrasRoundMtFn ?round) (distance ?distance))
+
+      ;;; preconditions
+      (connectedTo ?currentLocation ?nextLocation ?way)
+
+      ;;; nextLocation not in visitedSet
+      (evaluate ?nextLocationMinusVisitedSet (SetDifferenceFn (TheSet ?nextLocation) ?visitedSet))
+      (different ?nextLocationMinusVisitedSet (TheSet))
+
+      ;;; nextLocation not in added
+      (evaluate ?nextLocationMinusAdded (SetDifferenceFn (TheSet ?nextLocation) ?added))
+      (different ?nextLocationMinusAdded (TheSet))
+
+
+
+    )
+  )
+  (methodForAction
+    (getNextLocations ?round)
+    (actionSequence
+      (TheList
+        (doAgentPlan
+          (dijkstra  ?round)
+        )
+      )
+    )
+  )
+)
+
+;;; get next locations recursive case: some connected locations still need to be added
+(preconditionForMethod
+  (and
+    ;;; extract from microtheory
+    (ist-Information (DijkstrasRoundMtFn ?round) (currentLocation ?currentLocation))
+    (ist-Information (DijkstrasRoundMtFn ?round) (visitedSet ?visitedSet))
+    (ist-Information (DijkstrasRoundMtFn ?round) (goalLocation ?goalLocation))
+    (ist-Information (DijkstrasRoundMtFn ?round) (frontier ?frontier))
+    (ist-Information (DijkstrasRoundMtFn ?round) (added ?added))
+    (ist-Information (DijkstrasRoundMtFn ?round) (hunter ?hunter))
+    (ist-Information (DijkstrasRoundMtFn ?round) (distance ?distance))
+
+    (ist-Information (DijkstrasRoundMtFn ?round) (originalMt ?originalMt))
+
+    ;;; preconditions
+    (connectedTo ?currentLocation ?nextLocation ?way)
+
+    ;;; nextLocation not in visitedSet
+    (evaluate ?nextLocationMinusVisitedSet (SetDifferenceFn (TheSet ?nextLocation) ?visitedSet))
+    (different ?nextLocationMinusVisitedSet (TheSet))
+
+    ;;; nextLocation not in added
+    (evaluate ?nextLocationMinusAdded (SetDifferenceFn (TheSet ?nextLocation) ?added))
+    (different ?nextLocationMinusAdded (TheSet))
+
+    ;;; increment round number
+    (evaluate ?nextRound (PlusFn ?round 1))
+
+
+    ;;; add new path to frontier
+    (evaluate ?nextFrontier (SetAdjoinFn ?frontier (TheList (PlusFn ?distance 1) ?nextLocation )))
+
+    ;;; add location to added
+    (evaluate ?nextAdded (SetAdjoinFn ?added ?nextLocation))
+  )
+  (methodForAction
+    (getNextLocations ?round)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (distance ?distance)))
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (frontier ?nextFrontier)))
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (added ?nextAdded)))
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (currentLocation ?currentLocation)))
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (goalLocation ?goalLocation)))
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (visitedSet ?visitedSet)))
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (hunter ?hunter)))
+        (doRecord (ist-Information (DijkstrasRoundMtFn ?nextRound) (originalMt ?originalMt)))
+        (doAgentPlan
+          (getNextLocations ?nextRound)
+        )
+      )
+    )
+  )
+)
+
+;;;; plan to clear mts
+;;; base case, microtheory-clearing
+(preconditionForMethod
+	(uninferredSentence
+	(and
+		;;; find the microtheory with corresponding integer and fn
+		(evaluate ?mt (?microFn ?int))
+
+		;;; some proof that the mt exists
+		(ist-Information ?mt (originalMt ?mt))
+
+	))
+	(methodForAction
+		(clearMt ?microFn ?int)
+		(actionSequence
+			(TheList
+				;;;; do nothing. You’re done!
+			)
+		)
+	)
+)
+
+;;; recursive case, microtheory-clearing
+(preconditionForMethod
+	(and
+		;;; find the microtheory with corresponding integer and fn
+		(evaluate ?mt (?microFn ?int))
+
+;;; some proof that the mt exists since evaluate won’t defer to base case
+		(ist-Information ?mt (originalMt ?mt))
+
+		;;; increment int
+		(evaluate ?newInt (PlusFn ?int 1))
+
+	)
+	(methodForAction
+		(clearMt ?microFn ?int)
+		(actionSequence
+			(TheList
+				;;;; clear current mt
+				(doForgetKBMt ?mt)
+
+;;;; call this plan again with the newly incremented int
+				(clearMt ?microFn ?newInt)
+			)
+		)
+	)
+)
+

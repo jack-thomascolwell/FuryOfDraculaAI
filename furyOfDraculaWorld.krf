@@ -226,7 +226,7 @@
 (region Saragossa Iberia)
 (connectedTo Saragossa Madrid road)
 (connectedTo Saragossa Santander road)
-(connectedTo Saragossa  Toulouse road)
+(connectedTo Saragossa Toulouse road)
 (connectedTo Saragossa Barcelona road)
 (connectedTo Saragossa Alicante road)
 (connectedTo Saragossa Madrid whiteTrain)
@@ -370,8 +370,8 @@
 ;;;Cagliari
 (isa Cagliari SmallCity)
 (region Cagliari Italia)
-(connectedTo Cagliari Mediterranean port)
-(connectedTo Mediterranean Cagliari port)
+(connectedTo Cagliari MediterraneanSea port)
+(connectedTo MediterraneanSea Cagliari port)
 (connectedTo Cagliari TyrrhenianSea port)
 (connectedTo TyrrhenianSea Cagliari port)
 ;;;Florence
@@ -709,6 +709,51 @@ AustroHungaria
 	(arg2isa usedPsychicBond Integer)
 	(comment usedPsychicBond "usedPsychicBond refers to how many turns ago Mina searched a region of the map for Dracula")
 
+
+;;; MaturingHeuristic stuff
+
+
+	;;;no card on space
+	(<== (SumEncounterCards ?spaceOnTrail ?value)
+	(uninferredSentence (cardOnTrail ?card ?spaceOnTrail))
+	(evaluate ?value 0)
+	)
+
+	;;; card on trail, but face up
+	(<== (SumEncounterCards ?spaceOnTrail ?value)
+	(cardOnTrail ?card ?spaceOnTrail)
+	(encounterFaceUpOnTrail ?card ?spaceOnTrail)
+	(evaluate ?value 0)
+	)
+
+
+	(<== (SumEncounterCards ?spaceOnTrail ?value)
+	(cardOnTrail ?card ?spaceOnTrail)
+	(uninferredSentence (encounterFaceUpOnTrail ?card ?spaceOnTrail))
+	(evaluate ?value ?spaceOnTrail)
+	)
+
+	(<== (MaturingHeuristic ?value)
+	(SumEncounterCards 1 ?value1)
+	(SumEncounterCards 2 ?value2)
+	(SumEncounterCards 3 ?value3)
+	(SumEncounterCards 4 ?value4)
+	(SumEncounterCards 5 ?value5)
+	(SumEncounterCards 6 ?value6)
+	(evaluate ?value (SumFn ?value1 ?value2 ?value3 ?value4 ?value5  ?value6))
+	)
+
+	(isa SumEncounterCards BinaryPredicate)
+	(arity SumEncounterCards 2)
+	(arg1isa SumEncounterCards Integer)
+	(arg2isa SumEncounterCards Integer)
+
+	(isa MaturingHeuristic UnaryPredicate)
+	(arity MaturingHeuristic 1)
+	(arg1isa MaturingHueristic Integer)
+
+
+
 (isa cardOnTrail BinaryPredicate)
 	(arity cardOnTrail 2)
 	(arg1isa cardOnTrail EncounterCard)
@@ -764,6 +809,19 @@ AustroHungaria
 (isa influence Predicate)
   (arg1isa influence Integer)
   (comment influence "influence describes how far Dracula has progressed the influence track, indicating how close he is to winning the game")
+
+
+(isa moveTo UnaryPredicate)
+(arity moveTo 1)
+(arg1Isa moveTo Location)
+
+(isa leaveCard Predicate)
+(arity leaveCard 3)
+(arg1Isa leaveCard Set)
+(arg2Isa leaveCard Integer)
+(arg3Isa leaveCard Card)
+
+
 
 ;;; check to make sure that hunters don’t have too many bites
 (<== (hasValidBiteTokens ?hunter)
@@ -940,3 +998,22 @@ AustroHungaria
 	(evasionUtility SzganyBodyguards 1)
 	(weakeningUtility SzganyBodyguards 1)
 	(influenceUtility SzganyBodyguards 0)
+
+
+
+
+(isa moveTo UnaryPredicate)
+(arity moveTo 1)
+(arg1Isa moveTo Location)
+
+(isa leaveCard Predicate)
+(arity leaveCard 3)
+(arg1Isa leaveCard Set)
+(arg2Isa leaveCard Number)
+(arg3Isa leaveCard Card)
+
+(isa stressAt BinaryPredicate)
+(arity stressAt 2)
+(arg1Isa stressAt Number)
+(arg2Isa stressAt Location)
+

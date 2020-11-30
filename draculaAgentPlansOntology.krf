@@ -71,3 +71,91 @@
   (arg2Isa validLocation Integer)
   (arg3Isa validLocation Microtheory)
   (comment validLocation "validLocation states that Dracula could have been at a given location on a given space according to the information available to the hunters in the given game state")
+
+(isa distance UnaryPredicate)
+  (arity distance 1)
+  (arg1Isa distance Integer)
+
+(isa startLocation UnaryPredicate)
+  (arity startLocation 1)
+  (arg1Isa startLocation Location)
+
+
+(isa currentDistance UnaryPredicate)
+  (arity currentDistance 1)
+  (arg1Isa currentDistance Integer)
+
+(isa currentLocation UnaryPredicate)
+  (arity currentLocation 1)
+  (arg1Isa currentLocation Location)
+
+(isa visitedSet UnaryPredicate)
+(arity visitedSet 1)
+(arg1Isa visitedSet Set-Mathematical)
+
+(isa goalLocation UnaryPredicate)
+(arity goalLocation 1)
+(arg1Isa goalLocation Location)
+
+(isa hunter UnaryPredicate)
+(arity hunter 1)
+(arg1Isa hunter Agent)
+
+(isa added UnaryPredicate)
+  (arity added 1)
+  (arg1Isa added Set-Mathematical)
+
+(isa originalMt UnaryPredicate)
+  (arity originalMt 1)
+  (arg1Isa originalMt Microtheory)
+
+
+(isa GamestateRoundMtFn UnaryFunction)
+  (arity GamestateRoundMtFn 1)
+  (arg1Isa GamestateRoundMtFn Microtheory)
+  (resultIsa GamestateRoundMtFn Microtheory)
+
+
+(isa adjLocationsRoundMtFn UnaryFunction)
+  (arity adjLocationsRoundMtFn 1)
+  (arg1Isa adjLocationsRoundMtFn Microtheory)
+  (resultIsa adjLocationsRoundMtFn Microtheory)
+
+(isa stressLevel ComplexActionPredicate)
+(arity stressLevel 1)
+(arg1Isa stressLevel Microtheory)
+
+(isa deciderPlan ComplexActionPredicate)
+(arity deciderPlan 1)
+(arg1Isa deciderPlan Microtheory)
+
+(isa pickLocation ComplexActionPredicate)
+(arity pickLocation 3)
+(arg1Isa pickLocation Microtheory)
+(arg2Isa pickLocation Set)
+(arg3Isa pickLocation Integer)
+
+
+
+(isa findDistance ComplexActionPredicate)
+  (arity findDistance 4)
+  (arg1isa findDistance Microtheory)
+  (arg2isa findDistance Agent)
+
+(isa dijkstra ComplexActionPredicate)
+	(arity dijkstra 1)
+	(arg1Isa dijkstra Integer)
+
+
+(isa DijkstrasRoundMtFn UnaryFunction)
+  (arity DijkstrasRoundMtFn 1)
+  (arg1Isa DijkstrasRoundMtFn Integer)
+  (resultIsa DijkstrasRoundMtFn Microtheory)
+
+
+
+(isa clearMt ComplexActionPredicate)
+(arity clearMt 2)
+(arg1Isa clearMt UnaryFn)
+(arg2Isa clearMt Integer)
+
