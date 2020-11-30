@@ -1,9 +1,9 @@
 ;;; /evasionGame.krf
 ;;;
-;;; This file defines the evasionGameMt microtheory. See README.md for more.
+;;; This file defines the EvasionGameMt microtheory. See README.md for more.
 ;;; Authors: Joey Rose, Ruth Schlosser, and Jack Thomas-Colwell
 
-(in-microtheory evasionGameMt)
+(in-microtheory EvasionGameMt)
 
 (isa Location Collection)
 (comment Location "Location is a collection of locations on the board")
@@ -103,6 +103,3 @@
   (damage Agent ?damage)
   (greaterThan ?maxDamage ?damage)
 )
-
-
-

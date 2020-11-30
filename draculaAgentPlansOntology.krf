@@ -1,6 +1,6 @@
-(in-microtheory furyOfDraculaAgentPlansOntologyMt)
+(in-microtheory FuryOfDraculaAgentPlansOntologyMt)
 
-(genlMt furyOfDraculaAgentPlansMt furyOfDraculaAgentPlansOntologyMt)
+(genlMt FuryOfDraculaAgentPlansMt FuryOfDraculaAgentPlansOntologyMt)
 
 (isa SearchSpaceMtFn UnaryFunction)
   (arity SearchSpaceMtFn 1)
@@ -158,4 +158,3 @@
 (arity clearMt 2)
 (arg1Isa clearMt UnaryFn)
 (arg2Isa clearMt Integer)
-

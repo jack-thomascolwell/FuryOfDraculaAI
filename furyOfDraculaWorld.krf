@@ -1,12 +1,12 @@
 ;;; /furyOfDraculaWorld.krf
 ;;;
-;;; This file defines the furyOfDraculaWorldMt microtheory. See README.md for more.
+;;; This file defines the FuryOfDraculaWorldMt microtheory. See README.md for more.
 ;;; Authors: Joey Rose, Ruth Schlosser, and Jack Thomas-Colwell
 
-(in-microtheory furyOfDraculaWorldMt)
-(genlMt furyOfDraculaWorldMt evasionGameMt)
-(genlMt Session-ReasonerPlanMt furyOfDraculaAgentPlansMt)
-(genlMt furyOfDraculaAgentPlansMt furyOfDraculaWorldMt)
+(in-microtheory FuryOfDraculaWorldMt)
+(genlMt FuryOfDraculaWorldMt EvasionGameMt)
+(genlMt Session-ReasonerPlanMt FuryOfDraculaAgentPlansMt)
+(genlMt FuryOfDraculaAgentPlansMt FuryOfDraculaWorldMt)
 
 
 ;;;Best image: https://boardgamegeek.com/image/3224644/kiloforce
@@ -1016,4 +1016,3 @@ AustroHungaria
 (arity stressAt 2)
 (arg1Isa stressAt Number)
 (arg2Isa stressAt Location)
-

@@ -1,4 +1,4 @@
-(in-microtheory furyOfDraculaAgentPlansMt)
+(in-microtheory FuryOfDraculaAgentPlansMt)
 
 ;;; location information horn clauses
 (<== (conformsToFaceUpCard ?location ?space ?gameState)
@@ -657,4 +657,3 @@
 		)
 	)
 )
-
