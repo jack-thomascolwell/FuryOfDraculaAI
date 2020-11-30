@@ -2,100 +2,72 @@
 
 (genlMt furyOfDraculaAgentPlansMt furyOfDraculaAgentPlansOntologyMt)
 
-;;; SECTION getLocationsAtDistance
+(isa SearchSpaceMtFn UnaryFunction)
+  (arity SearchSpaceMtFn 1)
+  (arg1Isa SearchSpaceMtFn Integer)
+  (resultIsa SearchSpaceMtFn Microtheory)
 
 (isa ResultsMtFn UnaryFunction)
   (arity ResultsMtFn 1)
   (arg1Isa ResultsMtFn Microtheory)
   (resultIsa ResultsMtFn Microtheory)
 
-(isa FrontierLocationsRoundMtFn UnaryFunction)
-  (arity FrontierLocationsRoundMtFn 1)
-  (arg1Isa FrontierLocationsRoundMtFn Integer)
-  (resultIsa FrontierLocationsRoundMtFn Microtheory)
+
+(isa getSearchSpace ComplexActionPredicate)
+  (arity getSearchSpace 1)
+  (arg1Isa getSearchSpace Microtheory)
+  (comment getSearchSpace "getSearchSpace takes a game state and calculates all possible locations of Dracula from the perspective of the hunters")
 
 (isa getLocationsAtDistance ComplexActionPredicate)
   (arity getLocationsAtDistance 1)
-  (arg1Isa getLocationsAtDistance Microtheory)
+  (arg1Isa getLocationsAtDistance Integer)
+  (comment getLocationsAtDistance "getLocationsAtDistance is a subplan of getSearchSpace")
 
-(isa getFrontierLocations ComplexActionPredicate)
-  (arity getFrontierLocations 1)
-  (arg1Isa getFrontierLocations Integer)
-
-(isa getNextLocations ComplexActionPredicate)
-  (arity getNextLocations 1)
-  (arg1Isa getNextLocations Integer)
-
-(isa getLocationsFromFrontier ComplexActionPredicate)
-  (arity getLocationsFromFrontier 1)
-  (arg1Isa getLocationsFromFrontier Integer)
-
-(isa distance UnaryPredicate)
-  (arity distance 1)
-  (arg1Isa distance Integer)
-
-(isa startLocation UnaryPredicate)
-  (arity startLocation 1)
-  (arg1Isa startLocation Location)
+(isa maxDistance UnaryPredicate)
+  (arity maxDistance 1)
+  (arg1Isa maxDistance Integer)
 
 (isa frontier UnaryPredicate)
   (arity frontier 1)
   (arg1Isa frontier Set)
 
-(isa currentDistance UnaryPredicate)
-  (arity currentDistance 1)
-  (arg1Isa currentDistance Integer)
+(isa gameState UnaryPredicate)
+  (arity gameState 1)
+  (arg1Isa gameState Microtheory)
 
-(isa currentLocation UnaryPredicate)
-  (arity currentLocation 1)
-  (arg1Isa currentLocation Location)
+(isa conformsToFaceUpCard TernaryPredicate)
+  (arity conformsToFaceUpCard 3)
+  (arg1Isa conformsToFaceUpCard Location)
+  (arg2Isa conformsToFaceUpCard Integer)
+  (arg3Isa conformsToFaceUpCard Microtheory)
 
-(isa currentPath UnaryPredicate)
-  (arity currentPath 1)
-  (arg1Isa currentPath Set)
+(isa conformsToSeaCard TernaryPredicate)
+  (arity conformsToSeaCard 3)
+  (arg1Isa conformsToSeaCard Location)
+  (arg2Isa conformsToSeaCard Integer)
+  (arg3Isa conformsToSeaCard Microtheory)
 
-(isa added UnaryPredicate)
-  (arity added 1)
-  (arg1Isa added Set)
+(isa conformsToNegativePsychicBond TernaryPredicate)
+  (arity conformsToNegativePsychicBond 3)
+  (arg1Isa conformsToNegativePsychicBond Location)
+  (arg2Isa conformsToNegativePsychicBond Integer)
+  (arg3Isa conformsToNegativePsychicBond Microtheory)
 
-(isa extracted UnaryPredicate)
-  (arity extracted 1)
-  (arg1Isa extracted Set)
+(isa conformsToPositivePsychicBond TernaryPredicate)
+  (arity conformsToPositivePsychicBond 3)
+  (arg1Isa conformsToPositivePsychicBond Location)
+  (arg2Isa conformsToPositivePsychicBond Integer)
+  (arg3Isa conformsToPositivePsychicBond Microtheory)
 
-(isa originalMt UnaryPredicate)
-  (arity originalMt 1)
-  (arg1Isa originalMt Microtheory)
+(isa conformsToPreviousHunterLocations TernaryPredicate)
+  (arity conformsToPreviousHunterLocations 3)
+  (arg1Isa conformsToPreviousHunterLocations Location)
+  (arg2Isa conformsToPreviousHunterLocations Integer)
+  (arg3Isa conformsToPreviousHunterLocations Microtheory)
 
-;;; SECTION getNegativeInformation
-(isa NegativeInformationMtFn UnaryFunction)
-  (arity NegativeInformationMtFn 1)
-  (arg1Isa NegativeInformationMtFn Integer)
-  (resultIsa NegativeInformationMtFn Microtheory)
-
-(isa getNegativeInformation ComplexActionPredicate)
-  (arity getNegativeInformation 1)
-  (arg1Isa getNegativeInformation Microtheory)
-
-(isa getNegativePsychicBonds ComplexActionPredicate)
-  (arity getNegativePsychicBonds 1)
-  (arg1Isa getNegativePsychicBonds Integer)
-(isa getNegativeHunterLocations ComplexActionPredicate)
-  (arity getNegativeHunterLocations 1)
-  (arg1Isa getNegativeHunterLocations Integer)
-(isa getLocationsFromHunter ComplexActionPredicate)
-  (arity getLocationsFromHunter 1)
-  (arg1Isa getLocationsFromHunter Integer)
-
-;;; SECTION tests
-
-;;; getNegativeInformation test
-(in-microtheory negativeSearchTestMt)
-(previouslyLocated MinaHarker (TheList CastleDracula Galatz Klausenburg))
-(usedPsychicBond Brittanica 2)
-(locationOnTrail Galatz 2)
-
-;;; getLocationsAtDistanceTest
-(in-microtheory locationsAtDistanceTestMt)
-(startLocation CastleDracula)
-(distance 2)
-(negativeSearchSpace (TheSet (TheList Klausenburg 1)))
+(isa validLocation TernaryPredicate)
+  (arity validLocation 3)
+  (arg1Isa validLocation Location)
+  (arg2Isa validLocation Integer)
+  (arg3Isa validLocation Microtheory)
+  (comment validLocation "validLocation states that Dracula could have been at a given location on a given space according to the information available to the hunters in the given game state")
