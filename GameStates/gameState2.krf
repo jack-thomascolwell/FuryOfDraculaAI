@@ -1,4 +1,4 @@
-(in-microtheory DraculaGameState1Mt)
+(in-microtheory DraculaGameState2Mt)
 
 ;;; locations of hunters and dracula
 (location MinaHarker Paris)
