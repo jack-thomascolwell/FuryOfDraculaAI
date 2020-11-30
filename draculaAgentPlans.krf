@@ -85,8 +85,91 @@
 
 ;;; getSearchSpace PLAN
 
-;;; case I: there are no face up locations FIXME
-;;; case II: there are face up locations
+;;; case I: there are no face up locations and space one is neither a psychicBond region or a sea location
+(preconditionForMethod
+  (and
+    (uninferredSentence (ist-Information ?gameState (faceUpOnTrail ?location ?space)))
+
+    ;;; get total number of locations
+    (evaluate ?locations
+      (TheClosedRetrievalSetOf ?location
+        (and
+          (isa ?location Location)
+        )
+      )
+    )
+
+    (evaluate ?searchSpace (CardinalityFn ?locations))
+  )
+  (methodForAction
+    (getSearchSpace ?gameState)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (ResultsMtFn ?gameState) (searchSpace ?searchSpace)))
+      )
+    )
+  )
+)
+
+;;; case II: there are no face up locations and space one is a sea location
+(preconditionForMethod
+  (and
+    (uninferredSentence (ist-Information ?gameState (faceUpOnTrail ?location ?space)))
+    (ist-Information ?gameState (locationOnTrail ?location ?space))
+    (isa locationOnTrail Sea)
+
+    ;;; get total number of locations
+    (evaluate ?locations
+      (TheClosedRetrievalSetOf ?location
+        (and
+          (isa ?location Sea)
+        )
+      )
+    )
+
+    (evaluate ?searchSpace (CardinalityFn ?locations))
+  )
+  (methodForAction
+    (getSearchSpace ?gameState)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (ResultsMtFn ?gameState) (searchSpace ?searchSpace)))
+      )
+    )
+  )
+)
+
+;;; case III: there are no face up locations and space one is in a psychicBond region
+(preconditionForMethod
+  (and
+    (uninferredSentence (ist-Information ?gameState (faceUpOnTrail ?location ?space)))
+    (ist-Information ?gameState (locationOnTrail ?location ?space))
+    (ist-Information ?gameState (usedPsychicBond ?region 1))
+    (region ?location ?region)
+
+    ;;; get total number of locations
+    (evaluate ?locations
+      (TheClosedRetrievalSetOf ?someLocation
+        (and
+          (isa ?someLocation Location)
+          (region ?someLocation ?region)
+        )
+      )
+    )
+
+    (evaluate ?searchSpace (CardinalityFn ?locations))
+  )
+  (methodForAction
+    (getSearchSpace ?gameState)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (ResultsMtFn ?gameState) (searchSpace ?searchSpace)))
+      )
+    )
+  )
+)
+
+;;; case IV: there are face up locations
 (preconditionForMethod
   (and
     (evaluate ?locationsOnTrail
