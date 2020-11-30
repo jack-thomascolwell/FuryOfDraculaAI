@@ -1,4 +1,5 @@
 (in-microtheory FuryOfDraculaAgentPlansMt)
+(genlMt Session-ReasonerPlanMt FuryOfDraculaAgentPlansMt)
 
 ;;; location information horn clauses
 (<== (conformsToFaceUpCard ?location ?space ?gameState)
@@ -618,14 +619,14 @@
 		(evaluate ?mt (?microFn ?int))
 
 		;;; some proof that the mt exists
-		(ist-Information ?mt (originalMt ?mt))
+		(ist-Information ?mt (originalMt ?originalMt))
 
 	))
 	(methodForAction
 		(clearMt ?microFn ?int)
 		(actionSequence
 			(TheList
-				;;;; do nothing. You’re done!
+				(doClearWorkingMemory)
 			)
 		)
 	)
@@ -638,7 +639,7 @@
 		(evaluate ?mt (?microFn ?int))
 
 ;;; some proof that the mt exists since evaluate won’t defer to base case
-		(ist-Information ?mt (originalMt ?mt))
+		(ist-Information ?mt (originalMt ?originalMt))
 
 		;;; increment int
 		(evaluate ?newInt (PlusFn ?int 1))
@@ -656,4 +657,124 @@
 			)
 		)
 	)
+)
+
+
+
+
+
+;;; part 1 of stress calculations
+(preconditionForMethod
+	(and
+		(ist-Information ?gamestate (location Dracula ?draculaLocation))
+	)
+	(methodForAction
+		(stressLevel ?gamestate)
+	(actionSequence
+		(TheList
+          ;;;call all plans that contribute to stress calculations
+
+          ;;; figure out the search space that dracula can be found within
+          (doAgentPlan (getSearchSpace ?gamestate))
+
+          ;;; figure out the distances from all the hunters
+          (doAgentPlan (findDistance ?gamestate MinaHarker))
+          		(doAgentPlan (clearMt DijkstraRoundMtFn 0))
+
+          (doAgentPlan (findDistance ?gamestate VanHelsing))
+          (doAgentPlan (clearMt DijkstraRoundMtFn 0))
+
+          	(doAgentPlan (findDistance ?gamestate LordGodalming))
+          	(doAgentPlan (clearMt DijkstraRoundMtFn 0))
+
+          	(doAgentPlan (findDistance ?gamestate JohnSeward))
+          	(doAgentPlan (clearMt DijkstraRoundMtFn 0))
+
+          	;;; don’t need to call the maturingHeuristic horn clause since it can be queried
+
+          	;;; call the plan that decides what Dracula should do given this generated info
+          	(doAgentPlan (deciderPlan ?gamestate))
+
+
+	   )
+    )
+   )
+)
+
+
+
+
+;;; stress calculations part 2-- extracting info and calculating the final number
+
+(preconditionForMethod
+  (and
+		;;; extract search space number (call it ?searchspace)
+		(ist-Information (ResultsMtFn ?gamestate) (searchSpace ?searchSpace))
+
+		;;; extract Dracula’s current damage
+		(ist-Information ?gamestate (damage Dracula ?draculaDamage))
+
+		;;; extract Dracula’s current location
+		(ist-Information ?gamestate (location Dracula ?currLocation))
+
+		;;; extract distances from hunters
+		(ist-Information (ResultsMtFn ?gamestate) (shortestDistance MinaHarker ?MHDistance))
+
+(ist-Information (ResultsMtFn ?gamestate) (shortestDistance VanHelsing ?VHDistance))
+
+(ist-Information (ResultsMtFn ?gamestate) (shortestDistance LordGodalming ?LGDistance))
+
+(ist-Information (ResultsMtFn ?gamestate) (shortestDistance JohnSeward ?JSDistance)
+
+		;;; extract # despair tokens from gamestate
+		(ist-Information ?gamestate (despairTokens ?numDespairTokens))
+
+		;;; extract influence track (an integer) from gamestate
+		(ist-Information ?gamestate (influence ?influenceNum))
+		;;; encounter cards face up?
+(ist-Information ?gamestate (MaturingHeuristic ?maturingHeuristic))
+;;;
+
+;;; calculate stress level based on above info --> save as ?stress
+;;;normalize searchspace
+(evaluate ?searchspaceNorm (QuotientFn ?searchspace 88))
+
+;;; normalize all four hunter distances
+(evaluate ?MHDistanceNorm (QuotientFn ?MHDistance 10))
+(evaluate ?JSDistanceNorm (QuotientFn ?JSDistance 10))
+(evaluate ?VHDistanceNorm (QuotientFn ?VHDistance 10))
+(evaluate ?LGDistanceNorm (QuotientFn ?LGDistance 10))
+
+;;; normalize despair tokens
+(evaluate ?despairTokensNorm (QuotientFn ?despairTokens 3))
+
+;;; normalize influence
+(evaluate ?influenceNumNorm (QuotientFn ?influenceNum 1312))
+
+;;; normalize health
+(evaluate ?remainingDraculaHeath (DifferenceFn 14 ?draculaDamage))
+(evaluate ?remainingHealthNorm (QuotientFn ?remainingDraculaHeath ?maxDraculaDamage))
+
+;;; normalize maturing heuristic
+(evaluate ?maturingHeuristicNorm (QuotientFn ?maturingHeuristic 21))
+
+;;; find the average of all these values: generates a decimal from 0 - 1
+(evaluate ?averageOfCriteria (Average (TheSet (TheList ?maturingHeuristicNorm) (TheList ?remainingHealthNorm) (TheList ?influenceNumNorm) (TheList ?despairTokensNorm) (TheList ?LGDistanceNorm) (TheList ?JSDistanceNorm) (TheList ?VHDistanceNorm) (TheList ?MHDistanceNorm) (TheList ?searchspaceNorm)) FirstInListFn))
+
+	;;; invert number (so that higher = more stressed)
+	(evaluate ?stress (DifferenceFn 1 ?averageOfCriteria))
+
+  )
+  (methodForAction
+    (deciderPlan ?gamestate)
+
+    (actionSequence
+      (TheList
+
+	(doRecord (ist-Information ?gamestate (stressAt ?stress ?currLocation)))
+
+        )
+      )
+    )
+  )
 )
