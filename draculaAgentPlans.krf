@@ -1,561 +1,302 @@
 (in-microtheory furyOfDraculaAgentPlansMt)
 
-;;; SECTION getNegativeInformation
-
-;;; getNegativeInformation PLAN
-(preconditionForMethod
-  (and
-    (true)
-  )
-  (methodForAction
-    (getNegativeInformation ?microtheory)
-    (actionSequence
-      (TheList
-        (doRecord (ist-Information (NegativeInformationMtFn 0) (originalMt ?microtheory)))
-        (doRecord (ist-Information (NegativeInformationMtFn 0) (processed (TheSet))))
-        (doAgentPlan
-          (getNegativePsychicBonds 0)
-        )
-      )
-    )
-  )
+;;; location information horn clauses
+(<== (conformsToFaceUpCard ?location ?space ?gameState)
+  (ist-Information ?gameState (faceUpOnTrail ?trueLocation ?space))
+  (evaluate ?trueLocation ?location)
 )
 
-;;; getNegativePsychicBonds PLAN
+(<== (conformsToFaceUpCard ?location ?space ?gameState)
+  (uninferredSentence (ist-Information ?gameState (faceUpOnTrail ?trueLocation ?space)))
+)
 
-;;; base case: all locations in negative psychicBond regions have been processed
-(preconditionForMethod
+(<== (conformsToSeaCard ?location ?space ?gameState)
+  (ist-Information ?gameState (locationOnTrail ?trueLocation ?space))
+  (isa ?trueLocation Sea)
+  (isa ?location Sea)
+)
+
+(<== (conformsToSeaCard ?location ?space ?gameState)
+  (ist-Information ?gameState (locationOnTrail ?trueLocation ?space))
+  (uninferredSentence (isa ?trueLocation Sea))
+  (uninferredSentence (isa ?location Sea))
+)
+
+(<== (conformsToPositivePsychicBond ?location ?space ?gameState)
+  (ist-Information ?gameState (locationOnTrail ?trueLocation ?space))
+  (ist-Information ?gameState (usedPsychicBond ?region ?space))
+  (region ?trueLocation ?region)
+  (region ?location ?region)
+)
+
+(<== (conformsToPositivePsychicBond ?location ?space ?gameState)
+  (ist-Information ?gameState (locationOnTrail ?trueLocation ?space))
   (uninferredSentence
     (and
-      ;;; extract from microtheory
-      (ist-Information (NegativeInformationMtFn ?round) (originalMt ?originalMt))
-      (ist-Information (NegativeInformationMtFn ?round) (processed ?processed))
-
-      ;;; preconditions
-      ;;; dracula was not in region n turns ago
-      (ist-Information ?originalMt (usedPsychicBond ?region ?turnsAgo))
-      (ist-Information ?originalMt (locationOnTrail ?draculaLocation ?turnsAgo))
-      (uninferredSentence (region ?draculaLocation ?region))
-
-      ;;; location duple in region not processed
-      (region ?location ?region)
-      (evaluate ?duple (TheList ?location ?turnsAgo))
-      (evaluate ?dupleMinusProcessed (SetDifferenceFn (TheSet ?duple) ?processed))
-      (different ?dupleMinusProcessed (TheSet))
-
-      ;;; increment round number
-      (evaluate ?nextRound (PlusFn ?round 1))
-
-      ;;; add location duple to processed
-      (evaluate ?nextProcessed (SetAdjoinFn ?processed ?duple))
+      (ist-Information ?gameState (usedPsychicBond ?region ?space))
+      (region ?trueLocation ?region)
     )
   )
+)
+
+(<== (conformsToNegativePsychicBond ?location ?space ?gameState)
+  (ist-Information ?gameState (locationOnTrail ?trueLocation ?space))
+  (ist-Information ?gameState (usedPsychicBond ?region ?space))
+  (uninferredSentence (region ?trueLocation ?region))
+  (uninferredSentence (region ?location ?region))
+)
+
+(<== (conformsToNegativePsychicBond ?location ?space ?gameState)
+  (ist-Information ?gameState (locationOnTrail ?trueLocation ?space))
+  (uninferredSentence
+    (and
+      (ist-Information ?gameState (usedPsychicBond ?region ?space))
+      (uninferredSentence (region ?trueLocation ?region))
+    )
+  )
+)
+
+(<== (conformsToPreviousHunterLocations ?location ?space ?gameState)
+  (ist-Information ?gameState (locationOnTrail ?trueLocation ?space))
+  (ist-Information ?gameState (previouslyLocated ?hunter ?previousLocations))
+  (evaluate ?hunterLocation (NthInListFn ?space ?hunter))
+  (different ?hunterLocation ?trueLocation)
+  (different ?hunterLocation ?location)
+)
+
+(<== (conformsToPreviousHunterLocations ?location ?space ?gameState)
+  (ist-Information ?gameState (locationOnTrail ?trueLocation ?space))
+  (uninferredSentence
+    (and
+      (ist-Information ?gameState (previouslyLocated ?hunter ?previousLocations))
+      (evaluate ?hunterLocation (NthInListFn ?space ?hunter))
+      (different ?hunterLocation ?trueLocation)
+    )
+  )
+)
+
+(<== (validLocation ?location ?space ?gameState)
+  (conformsToFaceUpCard ?location ?space ?gameState)
+  (conformsToSeaCard ?location ?space ?gameState)
+  (conformsToNegativePsychicBond ?location ?space ?gameState)
+  (conformsToPositivePsychicBond ?location ?space ?gameState)
+  (conformsToPreviousHunterLocations ?location ?space ?gameState)
+)
+
+;;; getSearchSpace PLAN
+
+;;; case I: there are no face up locations and space one is neither a psychicBond region or a sea location
+(preconditionForMethod
+  (and
+    (uninferredSentence (ist-Information ?gameState (faceUpOnTrail ?location ?space)))
+
+    ;;; get total number of locations
+    (evaluate ?locations
+      (TheClosedRetrievalSetOf ?location
+        (and
+          (isa ?location Location)
+        )
+      )
+    )
+
+    (evaluate ?searchSpace (CardinalityFn ?locations))
+  )
   (methodForAction
-    (getNegativePsychicBonds ?round)
+    (getSearchSpace ?gameState)
     (actionSequence
       (TheList
-        (doRecord (ist-Information (NegativeInformationMtFn ?round) (processedHunters (TheSet))))
-        (doAgentPlan
-          (getNegativeHunterLocations ?round)
-        )
+        (doRecord (ist-Information (ResultsMtFn ?gameState) (searchSpace ?searchSpace)))
       )
     )
   )
 )
 
-;;; recursive case: there are locations in negative psychicBond regions that have not been processed
+;;; case II: there are no face up locations and space one is a sea location
 (preconditionForMethod
   (and
-    ;;; extract from microtheory
-    (ist-Information (NegativeInformationMtFn ?round) (originalMt ?originalMt))
-    (ist-Information (NegativeInformationMtFn ?round) (processed ?processed))
+    (uninferredSentence (ist-Information ?gameState (faceUpOnTrail ?location ?space)))
+    (ist-Information ?gameState (locationOnTrail ?location ?space))
+    (isa locationOnTrail Sea)
 
-    ;;; preconditions
-    ;;; dracula was not in region n turns ago
-    (ist-Information ?originalMt (usedPsychicBond ?region ?turnsAgo))
-    (ist-Information ?originalMt (locationOnTrail ?draculaLocation ?turnsAgo))
-    (uninferredSentence (region ?draculaLocation ?region))
+    ;;; get total number of locations
+    (evaluate ?locations
+      (TheClosedRetrievalSetOf ?location
+        (and
+          (isa ?location Sea)
+        )
+      )
+    )
 
-    ;;; location duple in region not processed
+    (evaluate ?searchSpace (CardinalityFn ?locations))
+  )
+  (methodForAction
+    (getSearchSpace ?gameState)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (ResultsMtFn ?gameState) (searchSpace ?searchSpace)))
+      )
+    )
+  )
+)
+
+;;; case III: there are no face up locations and space one is in a psychicBond region
+(preconditionForMethod
+  (and
+    (uninferredSentence (ist-Information ?gameState (faceUpOnTrail ?location ?space)))
+    (ist-Information ?gameState (locationOnTrail ?location ?space))
+    (ist-Information ?gameState (usedPsychicBond ?region 1))
     (region ?location ?region)
-    (evaluate ?duple (TheList ?location ?turnsAgo))
-    (evaluate ?dupleMinusProcessed (SetDifferenceFn (TheSet ?duple) ?processed))
-    (different ?dupleMinusProcessed (TheSet))
 
-    ;;; increment round number
-    (evaluate ?nextRound (PlusFn ?round 1))
+    ;;; get total number of locations
+    (evaluate ?locations
+      (TheClosedRetrievalSetOf ?someLocation
+        (and
+          (isa ?someLocation Location)
+          (region ?someLocation ?region)
+        )
+      )
+    )
 
-    ;;; add location duple to processed
-    (evaluate ?nextProcessed (SetAdjoinFn ?processed ?duple))
+    (evaluate ?searchSpace (CardinalityFn ?locations))
   )
   (methodForAction
-    (getNegativePsychicBonds ?round)
+    (getSearchSpace ?gameState)
     (actionSequence
       (TheList
-        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (originalMt ?originalMt)))
-        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (processed ?nextProcessed)))
+        (doRecord (ist-Information (ResultsMtFn ?gameState) (searchSpace ?searchSpace)))
+      )
+    )
+  )
+)
+
+;;; case IV: there are face up locations
+(preconditionForMethod
+  (and
+    (evaluate ?locationsOnTrail
+      (TheClosedRetrievalSetOf ?duple
+        (and
+          (ist-Information ?gameState (faceUpOnTrail ?location ?space))
+          (evaluate ?duple (TheList ?location ?space))
+        )
+      )
+    )
+
+    (evaluate ?minSpace (MinimumFn ?locationsOnTrail SecondInListFn))
+
+    (elementOf ?minDuple ?locationsOnTrail)
+    (evaluate ?minSpace (SecondInListFn ?minDuple))
+
+    (evaluate ?startLocation (FirstInListFn ?minDuple))
+
+    (evaluate ?maxDistance (DifferenceFn ?minSpace 1))
+  )
+  (methodForAction
+    (getSearchSpace ?gameState)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (SearchSpaceMtFn 0) (gameState ?gameState)))
+        (doRecord (ist-Information (SearchSpaceMtFn 0) (frontier (TheSet (TheList 0 ?startLocation (TheSet ?startLocation))))))
+        (doRecord (ist-Information (SearchSpaceMtFn 0) (maxDistance ?maxDistance)))
         (doAgentPlan
-          (getNegativePsychicBonds ?nextRound)
+          (getLocationsAtDistance 0)
         )
       )
     )
   )
 )
-
-;;; getNegativeHunterLocations PLAN
-
-;;; base case: all hunters with previous locations have been processed i.e. done
-(preconditionForMethod
-  (and
-    ;;; extract from microtheory
-    (ist-Information (NegativeInformationMtFn ?round) (originalMt ?originalMt))
-    (ist-Information (NegativeInformationMtFn ?round) (processed ?processed))
-    (ist-Information (NegativeInformationMtFn ?round) (processedHunters ?processedHunters))
-
-
-    (uninferredSentence
-      (and
-        ;;; extract from originalMt
-        (ist-Information ?originalMt (previouslyLocated ?hunter ?previousLocations))
-
-        ;;; hunter not processed
-        (evaluate ?hunterMinusProcessedHunters (SetDifferenceFn (TheSet ?hunter) ?processedHunters))
-        (different ?hunterMinusProcessedHunters (TheSet))
-      )
-    )
-  )
-  (methodForAction
-    (getNegativeHunterLocations ?round)
-    (actionSequence
-      (TheList
-        (doRecord (ist-Information (ResultsMtFn ?originalMt) (negativeSearchSpace ?processed)))
-      )
-    )
-  )
-)
-
-;;; recursive case: there are hunters with previous locations that have not been processed
-(preconditionForMethod
-  (and
-    (ist-Information (NegativeInformationMtFn ?round) (originalMt ?originalMt))
-    (ist-Information (NegativeInformationMtFn ?round) (processed ?processed))
-    (ist-Information (NegativeInformationMtFn ?round) (processedHunters ?processedHunters))
-
-    ;;; extract from originalMt
-    (ist-Information ?originalMt (previouslyLocated ?hunter ?previousLocations))
-
-    ;;; hunter not processed
-    (evaluate ?hunterMinusProcessedHunters (SetDifferenceFn (TheSet ?hunter) ?processedHunters))
-    (different ?hunterMinusProcessedHunters (TheSet))
-
-    ;;; increment round number
-    (evaluate ?nextRound (PlusFn ?round 1))
-
-    ;;; add hunter to processedHunters
-    (evaluate ?nextProcessedHunters (SetAdjoinFn ?processedHunters ?hunter))
-  )
-  (methodForAction
-    (getNegativeHunterLocations ?round)
-    (actionSequence
-      (TheList
-        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (originalMt ?originalMt)))
-        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (processed ?processed)))
-        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (index 1)))
-        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (previousLocations ?previousLocations)))
-        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (processedHunters ?nextProcessedHunters)))
-        (doAgentPlan
-          (getLocationsFromHunter ?nextRound)
-        )
-      )
-    )
-  )
-)
-
-;;; getLocationsFromHunter PLAN
-
-;;; base case: index > length of list
-(preconditionForMethod
-  (and
-    ;;; extract from microtheory
-    (ist-Information (NegativeInformationMtFn ?round) (index ?index))
-    (ist-Information (NegativeInformationMtFn ?round) (previousLocations ?previousLocations))
-
-    (evaluate ?length (LengthOfListFn ?previousLocations))
-
-    (greaterThan ?index ?length)
-  )
-  (methodForAction
-    (getLocationsFromHunter ?round)
-    (actionSequence
-      (TheList
-        (doAgentPlan
-          (getNegativeHunterLocations ?round)
-        )
-      )
-    )
-  )
-)
-
-;;; recursive case: index <= length of list and dracula was not at the location
-(preconditionForMethod
-  (and
-    ;;; extract from microtheory
-    (ist-Information (NegativeInformationMtFn ?round) (originalMt ?originalMt))
-    (ist-Information (NegativeInformationMtFn ?round) (processed ?processed))
-    (ist-Information (NegativeInformationMtFn ?round) (index ?index))
-    (ist-Information (NegativeInformationMtFn ?round) (previousLocations ?previousLocations))
-    (ist-Information (NegativeInformationMtFn ?round) (processedHunters ?processedHunters))
-
-    (evaluate ?length (LengthOfListFn ?previousLocations))
-
-    (lessThanOrEqualTo ?index ?length)
-
-
-    (evaluate ?location (NthInListFn ?index ?previousLocations))
-
-    (uninferredSentence (ist-Information ?originalMt (locationOnTrail ?location ?index)))
-
-    (evaluate ?duple (TheList ?location ?index))
-
-    ;;; increment round number
-    (evaluate ?nextRound (PlusFn ?round 1))
-
-    ;;; increment index
-    (evaluate ?nextIndex (PlusFn ?index 1))
-
-    ;;; add location duple to processed
-    (evaluate ?nextProcessed (SetAdjoinFn ?processed ?duple))
-  )
-  (methodForAction
-    (getLocationsFromHunter ?round)
-    (actionSequence
-      (TheList
-        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (originalMt ?originalMt)))
-        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (processed ?nextProcessed)))
-        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (index ?nextIndex)))
-        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (previousLocations ?previousLocations)))
-        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (processedHunters ?processedHunters)))
-        (doAgentPlan
-          (getLocationsFromHunter ?nextRound)
-        )
-      )
-    )
-  )
-)
-
-;;; recursive case: index <= length of list and dracula was at the location
-(preconditionForMethod
-  (and
-    ;;; extract from microtheory
-    (ist-Information (NegativeInformationMtFn ?round) (originalMt ?originalMt))
-    (ist-Information (NegativeInformationMtFn ?round) (processed ?processed))
-    (ist-Information (NegativeInformationMtFn ?round) (index ?index))
-    (ist-Information (NegativeInformationMtFn ?round) (previousLocations ?previousLocations))
-    (ist-Information (NegativeInformationMtFn ?round) (processedHunters ?processedHunters))
-
-    (evaluate ?length (LengthOfListFn ?previousLocations))
-
-    (lessThanOrEqualTo ?index ?length)
-
-
-    (evaluate ?location (NthInListFn ?index ?previousLocations))
-
-    (ist-Information ?originalMt (locationOnTrail ?location ?index))
-
-    ;;; increment round number
-    (evaluate ?nextRound (PlusFn ?round 1))
-
-    ;;; increment index
-    (evaluate ?nextIndex (PlusFn ?index 1))
-  )
-  (methodForAction
-    (getLocationsFromHunter ?round)
-    (actionSequence
-      (TheList
-        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (originalMt ?originalMt)))
-        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (processed ?processed)))
-        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (index ?nextIndex)))
-        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (previousLocations ?previousLocations)))
-        (doRecord (ist-Information (NegativeInformationMtFn ?nextRound) (processedHunters ?processedHunters)))
-        (doAgentPlan
-          (getLocationsFromHunter ?nextRound)
-        )
-      )
-    )
-  )
-)
-
-;;; SECTION getLocationsAtDistance
 
 ;;; getLocationsAtDistance PLAN
-
-;;; Initiate frontierSet given start location
-(preconditionForMethod
-  (and
-    ;;; extract from microtheory
-    (ist-Information ?microtheory (startLocation ?startLocation))
-    (ist-Information ?microtheory (distance ?distance))
-  )
-  (methodForAction
-    (getLocationsAtDistance ?microtheory)
-    (actionSequence
-      (TheList
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn 0) (distance ?distance)))
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn 0) (frontier (TheSet (TheList 0 ?startLocation (TheSet ?startLocation))))))
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn 0) (originalMt ?microtheory)))
-        (doAgentPlan
-          (getFrontierLocations 0)
-        )
-      )
-    )
-  )
-)
-
-;;; getFrontierLocations PLAN
 
 ;;; base case: frontier only contains tuples at max distance
 (preconditionForMethod
   (and
     ;;; extract from microtheory
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (distance ?distance))
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (frontier ?frontier))
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (originalMt ?originalMt))
+    (ist-Information (SearchSpaceMtFn ?round) (maxDistance ?maxDistance))
+    (ist-Information (SearchSpaceMtFn ?round) (frontier ?frontier))
+    (ist-Information (SearchSpaceMtFn ?round) (gameState ?gameState))
 
-    ;;; preconditions
-    (evaluate ?lowestDistance (MinimumFn ?frontier FirstInListFn))
-    (greaterThanOrEqualTo ?lowestDistance ?distance)
+    (evaluate ?minDistance (MinimumFn ?frontier FirstInListFn))
+    (greaterThanOrEqualTo ?minDistance ?maxDistance)
+
+    ;;; extract locations from frontier
+    (evaluate ?locationsInFrontier
+      (TheClosedRetrievalSetOf ?location
+        (and
+          (elementOf ?tuple ?frontier)
+          (evaluate ?location (SecondInListFn ?tuple))
+        )
+      )
+    )
+
+    (evaluate ?searchSpace (CardinalityFn ?locationsInFrontier))
+  )
+  (methodForAction
+    (getLocationsAtDistance ?round)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (ResultsMtFn ?gameState) (searchSpace ?searchSpace)))
+        (doRecord (ist-Information (ResultsMtFn ?gameState) (searchSpaceSet ?locationsInFrontier)))
+      )
+    )
+  )
+)
+
+;;; recursive case: there exists a tuple with distance less than maxDistance
+(preconditionForMethod
+  (and
+    ;;; extract from microtheory
+    (ist-Information (SearchSpaceMtFn ?round) (maxDistance ?maxDistance))
+    (ist-Information (SearchSpaceMtFn ?round) (frontier ?frontier))
+    (ist-Information (SearchSpaceMtFn ?round) (gameState ?gameState))
+
+    (evaluate ?minDistance (MinimumFn ?frontier FirstInListFn))
+    (lessThan ?minDistance ?maxDistance)
+
+    (elementOf ?minTuple ?frontier)
+    (evaluate ?minDistance (FirstInListFn ?minTuple))
+
+    (evaluate ?location (SecondInListFn ?minTuple))
+    (evaluate ?path (ThirdInListFn ?minTuple))
+
+    ;;; add next locations to frontier
+    (evaluate ?nextLocations
+      (TheClosedRetrievalSetOf ?nextTuple
+        (and
+          ;;; nextLocation is connected to location
+          (connectedTo ?location ?nextLocation ?way)
+          (elementOf ?way (TheSet road port seaAdjacent))
+
+          (evaluate ?nextDistance (PlusFn ?minDistance 1))
+
+          (evaluate ?nextPath (SetAdjoinFn ?path ?nextLocation))
+
+          (evaluate ?nextSpace (DifferenceFn ?maxDistance ?minDistance))
+
+          ;;; nextLocation is a valid location
+          (validLocation ?nextLocation ?nextSpace ?gameState)
+
+          ;;; nextLocation is not in the previous path
+          (uninferredSentence (elementOf ?nextLocation ?path))
+
+          (evaluate ?nextTuple (TheList ?nextDistance ?nextLocation ?nextPath))
+        )
+      )
+    )
+
+    (evaluate ?nextFrontier (SetMinusFn (SetOfSetsUnionFn (TheSet ?nextLocations ?frontier)) ?minTuple))
 
     ;;; increment round number
     (evaluate ?nextRound (PlusFn ?round 1))
   )
   (methodForAction
-    (getFrontierLocations ?round)
+    (getLocationsAtDistance ?round)
     (actionSequence
       (TheList
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (frontier ?frontier)))
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (originalMt ?originalMt)))
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (extracted (TheSet))))
+        (doRecord (ist-Information (SearchSpaceMtFn ?nextRound) (frontier ?nextFrontier)))
+        (doRecord (ist-Information (SearchSpaceMtFn ?nextRound) (gameState ?gameState)))
+        (doRecord (ist-Information (SearchSpaceMtFn ?nextRound) (maxDistance ?maxDistance)))
         (doAgentPlan
-          (getLocationsFromFrontier ?nextRound)
-        )
-      )
-    )
-  )
-)
-
-;;; recursive case: frontier contains tuples below max distance
-(preconditionForMethod
-  (and
-    ;;; extract from microtheory
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (distance ?distance))
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (frontier ?frontier))
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (originalMt ?originalMt))
-
-    ;;; preconditions
-    (evaluate ?lowestDistance (MinimumFn ?frontier FirstInListFn))
-    (lessThan ?lowestDistance ?distance)
-
-    (elementOf ?lowestDistanceTuple ?frontier)
-    (evaluate ?lowestDistance (FirstInListFn ?lowestDistanceTuple))
-
-    ;;; increment round number
-    (evaluate ?nextRound (PlusFn ?round 1))
-
-    ;;; remove tuple from frontier
-    (evaluate ?nextFrontier (SetMinusFn ?frontier ?lowestDistanceTuple))
-
-    ;;; extract from tuple
-    (evaluate ?currentLocation (SecondInListFn ?lowestDistanceTuple))
-    (evaluate ?currentPath (ThirdInListFn ?lowestDistanceTuple))
-  )
-  (methodForAction
-    (getFrontierLocations ?round)
-    (actionSequence
-      (TheList
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (distance ?distance)))
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (frontier ?nextFrontier)))
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (added (TheSet))))
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (currentLocation ?currentLocation)))
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (currentDistance ?lowestDistance)))
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (currentPath ?currentPath)))
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (originalMt ?originalMt)))
-
-        (doAgentPlan
-          (getNextLocations ?nextRound)
-        )
-      )
-    )
-  )
-)
-
-;;; getNextLocations PLAN
-
-;;; base case: all connected locations have been added to the frontier
-(preconditionForMethod
-  (uninferredSentence
-    (and
-      ;;; extract from microtheory
-      (ist-Information (FrontierLocationsRoundMtFn ?round) (currentLocation ?currentLocation))
-      (ist-Information (FrontierLocationsRoundMtFn ?round) (currentPath ?currentPath))
-      (ist-Information (FrontierLocationsRoundMtFn ?round) (currentDistance ?currentDistance))
-      (ist-Information (FrontierLocationsRoundMtFn ?round) (frontier ?frontier))
-      (ist-Information (FrontierLocationsRoundMtFn ?round) (added ?added))
-      (ist-Information (FrontierLocationsRoundMtFn ?round) (distance ?distance))
-      (ist-Information (FrontierLocationsRoundMtFn ?round) (originalMt ?originalMt))
-
-      ;;; preconditions
-      (connectedTo ?currentLocation ?nextLocation ?way)
-      (elementOf ?way (TheSet road port seaAdjacent))
-
-      ;;; nextLocation not in currentPath
-      (evaluate ?nextLocationMinusCurrentPath (SetDifferenceFn (TheSet ?nextLocation) ?currentPath))
-      (different ?nextLocationMinusCurrentPath (TheSet))
-
-      ;;; nextLocation not in added
-      (evaluate ?nextLocationMinusAdded (SetDifferenceFn (TheSet ?nextLocation) ?added))
-      (different ?nextLocationMinusAdded (TheSet))
-
-      ;;; nextLocation not a forbidden duple
-      (ist-Information ?originalMt (negativeSearchSpace ?negativeSearchSpace))
-      (ist-Information ?originalMt (distance ?maxDistance))
-      (evaluate ?turnsAgo (DifferenceFn ?maxDistance (PlusFn 1 ?currentDistance)))
-      (evaluate ?duple (TheList ?nextLocation ?turnsAgo))
-      (evaluate ?dupleMinusNegativeSearchSpace (SetDifferenceFn (TheSet ?duple) ?negativeSearchSpace))
-      (different ?dupleMinusNegativeSearchSpace (TheSet))
-
-      ;;; increment round number
-      (evaluate ?nextRound (PlusFn ?round 1))
-
-      ;;; add new path to frontier
-      (evaluate ?nextFrontier (SetAdjoinFn ?frontier (TheList (PlusFn ?currentDistance 1) ?nextLocation (SetAdjoinFn ?currentPath ?nextLocation))))
-      ;;; add location to added
-      (evaluate ?nextAdded (SetAdjoinFn ?added ?nextLocation))
-    )
-  )
-  (methodForAction
-    (getNextLocations ?round)
-    (actionSequence
-      (TheList
-        (doAgentPlan
-          (getFrontierLocations ?round)
-        )
-      )
-    )
-  )
-)
-
-;;; recursive case: some connected locations still need to be added
-(preconditionForMethod
-  (and
-    ;;; extract from microtheory
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (currentLocation ?currentLocation))
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (currentPath ?currentPath))
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (currentDistance ?currentDistance))
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (frontier ?frontier))
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (added ?added))
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (distance ?distance))
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (originalMt ?originalMt))
-
-    ;;; preconditions
-    (connectedTo ?currentLocation ?nextLocation ?way)
-    (elementOf ?way (TheSet road port seaAdjacent))
-
-    ;;; nextLocation not in currentPath
-    (evaluate ?nextLocationMinusCurrentPath (SetDifferenceFn (TheSet ?nextLocation) ?currentPath))
-    (different ?nextLocationMinusCurrentPath (TheSet))
-
-    ;;; nextLocation not in added
-    (evaluate ?nextLocationMinusAdded (SetDifferenceFn (TheSet ?nextLocation) ?added))
-    (different ?nextLocationMinusAdded (TheSet))
-
-    ;;; nextLocation not a forbidden duple
-    (ist-Information ?originalMt (negativeSearchSpace ?negativeSearchSpace))
-    (ist-Information ?originalMt (distance ?maxDistance))
-    (evaluate ?turnsAgo (DifferenceFn ?maxDistance (PlusFn 1 ?currentDistance)))
-    (evaluate ?duple (TheList ?nextLocation ?turnsAgo))
-    (evaluate ?dupleMinusNegativeSearchSpace (SetDifferenceFn (TheSet ?duple) ?negativeSearchSpace))
-    (different ?dupleMinusNegativeSearchSpace (TheSet))
-
-    ;;; increment round number
-    (evaluate ?nextRound (PlusFn ?round 1))
-
-    ;;; add new path to frontier
-    (evaluate ?nextFrontier (SetAdjoinFn ?frontier (TheList (PlusFn ?currentDistance 1) ?nextLocation (SetAdjoinFn ?currentPath ?nextLocation))))
-    ;;; add location to added
-    (evaluate ?nextAdded (SetAdjoinFn ?added ?nextLocation))
-  )
-  (methodForAction
-    (getNextLocations ?round)
-    (actionSequence
-      (TheList
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (distance ?distance)))
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (frontier ?nextFrontier)))
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (added ?nextAdded)))
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (currentLocation ?currentLocation)))
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (currentDistance ?currentDistance)))
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (currentPath ?currentPath)))
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (originalMt ?originalMt)))
-        (doAgentPlan
-          (getNextLocations ?nextRound)
-        )
-      )
-    )
-  )
-)
-
-;;; getLocationsFromFrontier PLAN
-
-;;; base case: all locations have been extracted from the frontier
-(preconditionForMethod
-  (and
-    ;;; extract from microtheory
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (frontier ?frontier))
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (extracted ?extracted))
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (originalMt ?originalMt))
-
-    ;;; preconditions
-    (uninferredSentence (different ?frontier (TheSet)))
-  )
-  (methodForAction
-    (getLocationsFromFrontier ?round)
-    (actionSequence
-      (TheList
-        (doRecord (ist-Information (ResultsMtFn ?originalMt) (locationsAtDistance ?extracted)))
-      )
-    )
-  )
-)
-
-;;; recursive case: some location still needs to be extracted
-(preconditionForMethod
-  (and
-    ;;; extract from microtheory
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (frontier ?frontier))
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (extracted ?extracted))
-    (ist-Information (FrontierLocationsRoundMtFn ?round) (originalMt ?originalMt))
-
-    ;;; preconditions
-    (elementOf ?tuple ?frontier)
-    (evaluate ?location (SecondInListFn ?tuple))
-
-    ;;; increment round number
-    (evaluate ?nextRound (PlusFn ?round 1))
-
-    ;;; remove tuple from frontier
-    (evaluate ?nextFrontier (SetMinusFn ?frontier ?tuple))
-
-    ;;; add location to extracted
-    (evaluate ?nextExtracted (SetAdjoinFn ?extracted ?location))
-  )
-  (methodForAction
-    (getLocationsFromFrontier ?round)
-    (actionSequence
-      (TheList
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (frontier ?nextFrontier)))
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (extracted ?nextExtracted)))
-        (doRecord (ist-Information (FrontierLocationsRoundMtFn ?nextRound) (originalMt ?originalMt)))
-        (doAgentPlan
-          (getLocationsFromFrontier ?nextRound)
+          (getLocationsAtDistance ?nextRound)
         )
       )
     )
