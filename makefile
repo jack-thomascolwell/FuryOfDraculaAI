@@ -1,9 +1,9 @@
 all: agent gamestates
 
-agent:
+agent: *.krf
 	mkdir -p dist
 	cat *.krf > dist/dracula.krf
 
-gamestates:
+gamestates: *.krf
 	mkdir -p dist
 	cat GameStates/*.krf > dist/gameStates.krf
