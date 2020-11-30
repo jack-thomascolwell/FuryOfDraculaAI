@@ -749,7 +749,10 @@
 (evaluate ?despairTokensNorm (QuotientFn ?numDespairTokens 3))
 
 ;;; normalize influence
-(evaluate ?influenceNumNorm (QuotientFn ?influenceNum 1312))
+(evaluate ?tempInfluence (QuotientFn ?influenceNum 13))
+
+;;; invert Influence
+(evaluate ?influenceNumNorm (DifferenceFn 1 ?tempInfluence))
 
 ;;; normalize health
 (evaluate ?remainingDraculaHeath (DifferenceFn 14 ?draculaDamage))
