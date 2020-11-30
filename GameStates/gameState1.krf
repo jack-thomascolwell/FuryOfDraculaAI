@@ -1,0 +1,63 @@
+(in-microtheory DraculaGameState1Mt)
+
+;;; locations of hunters and dracula
+(location MinaHarker Manchester)
+(location VanHelsing Madrid)
+(location JohnSeward Berlin)
+(location LordGodalming Sofia)
+(location Dracula Leipzig)
+
+;;; locations and encounter cards on trail
+(locationOnTrail Paris 6)
+(locationOnTrail Brussels 5)
+(locationOnTrail Cologne 4)
+(faceUpOnTrail Cologne 4)
+(locationOnTrail Strasbourg 3)
+(locationOnTrail Nuremberg 2)
+(locationOnTrail Leipzig 1)
+
+(cardOnTrail card6 6)
+(isa card6 SzganyMob)
+
+(cardOnTrail card5 5)
+(isa card5 Bats)
+
+(cardOnTrail card4 4)
+(isa card4 Rats)
+(encounterFaceUpOnTrail card4 4)
+
+
+(cardOnTrail card3 3)
+(isa card3 RecklessVampire)
+
+(cardOnTrail card2 2)
+(isa card2 Hoax)
+
+(cardOnTrail card1 1)
+(isa card1 Saboteur)
+
+;;; mina search actions
+(usedPsychicBond Gallia 3)
+
+
+;;; damage taken by hunters and dracula
+(damage MinaHarker 3)
+(damage VanHelsing 4)
+(damage JohnSeward 4)
+(damage LordGodalming 3)
+(damage Dracula 6)
+
+
+;;;Dracula resources
+(cardHand Dracula (TheSet cardA cardB cardC cardD cardE))
+(isa cardA Bats)
+(isa cardB Hoax)
+(isa cardC Wolves)
+(isa cardD AristocraticVampire)
+(isa cardE Bats)
+
+;;;despair tokens
+(despairTokens 2)
+
+;;;influence track
+(influence 9)

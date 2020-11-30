@@ -1,0 +1,64 @@
+(in-microtheory DraculaGameState1Mt)
+
+;;; locations of hunters and dracula
+(location MinaHarker Paris)
+(location VanHelsing Berlin)
+(location JohnSeward Budapest)
+(location LordGodalming Geneva)
+(location Dracula Munich)
+;;; it looks like dracula will want to move to venice? And in this situation he should be stressed, i would think, so let’s create the stress boundary to include whatever this measurement is.
+
+
+;;; locations and encounter cards on trail
+(locationOnTrail London 6)
+(locationOnTrail EnglishChannel 5)
+(locationOnTrail LeHavre 4)
+(faceUpOnTrail Paris 3)
+(locationOnTrail Paris 3)
+(locationOnTrail Strasbourg 2)
+(locationOnTrail Munich 1)
+
+(cardOnTrail card6 6)
+(isa card6 RecklessVampire)
+
+(cardOnTrail card5 5)
+(isa card5 UnnaturalFog)
+
+(cardOnTrail card4 4)
+(isa card4 Wolves)
+
+(cardOnTrail card3 3)
+(isa card3 SzganyBodyguards)
+(encounterFaceUpOnTrail card3 3)
+
+(cardOnTrail card2 2)
+(isa card2 Spy)
+
+(cardOnTrail card1 1)
+(isa card1 DesecratedSoil)
+
+;;; mina search actions
+(usedPsychicBond Iberia 4)
+
+
+;;; damage taken by hunters and dracula
+(damage MinaHarker 3)
+(damage VanHelsing 4)
+(damage JohnSeward 4)
+(damage LordGodalming 3)
+(damage Dracula 6)
+
+
+;;;Dracula resources
+(cardHand Dracula (TheSet cardA cardB cardC cardD cardE))
+(isa cardA Saboteur)
+(isa cardB Bats)
+(isa cardC SzganyBodyguards)
+(isa cardD SzganyMob)
+(isa cardE AristocraticVampire)
+
+;;;despair tokens
+(despairTokens 2)
+
+;;;influence track
+(influence 11)
