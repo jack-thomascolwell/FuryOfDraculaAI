@@ -1016,3 +1016,34 @@ AustroHungaria
 (arity stressAt 2)
 (arg1Isa stressAt Number)
 (arg2Isa stressAt Location)
+
+
+;;; horn clause to determine dracula’s extra damage from going into a sea (+2) or between seas (+1).
+(isa extraDamage Relation)
+(arity extraDamage 4)
+(arg1Isa extraDamage Integer)
+(arg2Isa extraDamage Location)
+(arg3Isa extraDamage Location)
+(arg4Isa extraDamage Integer)
+
+;;; moving from land to sea
+(<== (extraDamage ?originalDamage ?currentLocation ?nextLocation ?newDamage)
+(uninferredSentence (isa ?currentLocation Sea))
+(isa ?nextLocation Sea)
+(evaluate ?newDamage (PlusFn 2 ?originalDamage))
+)
+
+;;; moving from sea to sea
+(<== (extraDamage ?originalDamage ?currentLocation ?nextLocation ?newDamage)
+(isa ?currentLocation Sea)
+(isa ?nextLocation Sea)
+(evaluate ?newDamage (PlusFn 1 ?originalDamage))
+)
+
+;;; moving from land to land
+(<== (extraDamage ?originalDamage ?currentLocation ?nextLocation ?newDamage)
+(uninferredSentence (isa ?currentLocation Sea))
+(uninferredSentence (isa ?nextLocation Sea))
+(evaluate ?newDamage (PlusFn 0 ?originalDamage))
+)
+
