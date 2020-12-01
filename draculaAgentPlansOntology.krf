@@ -27,6 +27,10 @@
   (arity maxDistance 1)
   (arg1Isa maxDistance Integer)
 
+(isa searchSpace UnaryPredicate)
+(arity searchSpace 1)
+(arg1Isa searchSpace Integer)
+
 (isa frontier UnaryPredicate)
   (arity frontier 1)
   (arg1Isa frontier Set)
@@ -116,6 +120,11 @@
   (resultIsa GamestateRoundMtFn Microtheory)
 
 
+(isa playDracula ComplexActionPredicate)
+(arity playDracula 1)
+(arg1Isa playDracula Microtheory)
+
+
 (isa adjLocationsRoundMtFn UnaryFunction)
   (arity adjLocationsRoundMtFn 1)
   (arg1Isa adjLocationsRoundMtFn Microtheory)
@@ -125,17 +134,10 @@
 (arity stressLevel 1)
 (arg1Isa stressLevel Microtheory)
 
-(isa getNextLocations ComplexActionPredicate)
-(arity getNextLocations 1)
-(arg1Isa getNextLocations Integer)
-
-(isa searchSpace UnaryPredicate)
-(arity searchSpace 1)
-(arg1Isa searchSpace Integer)
-
 (isa deciderPlan ComplexActionPredicate)
 (arity deciderPlan 1)
 (arg1Isa deciderPlan Microtheory)
+
 
 (isa pickLocation ComplexActionPredicate)
 (arity pickLocation 3)
@@ -143,6 +145,10 @@
 (arg2Isa pickLocation Set)
 (arg3Isa pickLocation Integer)
 
+(isa evaluateAdjLocations ComplexActionPredicate)
+(arity evaluateAdjLocations 2)
+(arg1Isa evaluateAdjLocations Microtheory)
+(arg2Isa evaluateAdjLocations Integer)
 
 
 (isa findDistance ComplexActionPredicate)
@@ -155,7 +161,7 @@
 	(arg1Isa dijkstra Integer)
 
 
-(isa DijkstrasRoundMtFn UnaryFunction)
+(isa DijkstrasRoundMtFn BinaryFunction)
   (arity DijkstrasRoundMtFn 1)
   (arg1Isa DijkstrasRoundMtFn Integer)
   (resultIsa DijkstrasRoundMtFn Microtheory)
@@ -166,3 +172,8 @@
 (arity clearMt 2)
 (arg1Isa clearMt UnaryFn)
 (arg2Isa clearMt Integer)
+
+
+(isa stressLevel ComplexActionPredicate)
+(arity stressLevel 1)
+(arg1Isa stressLevel Microtheory)
