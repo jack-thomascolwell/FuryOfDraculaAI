@@ -963,7 +963,7 @@
     (actionSequence
       (TheList
 
-	(doRecord (ist-Information ?gamestate (stressAt ?stress ?currLocation)))
+	(doRecord (ist-Information (ResultsMtFn ?gamestate) (stressAt ?stress ?currLocation)))
 
         )
       )
