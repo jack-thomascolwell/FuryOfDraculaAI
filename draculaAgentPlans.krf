@@ -25,7 +25,7 @@
       ;;;(doAgentPlan (stressLevel ?gamestate))
       ;;; evaluate potential moves
       (doAgentPlan (evaluateAdjLocations ?gamestate 0))
-
+      (doAgentPlan (recordEncounterCard ?gamestate))
       )
     )
   )
