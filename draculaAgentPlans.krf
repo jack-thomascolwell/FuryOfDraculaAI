@@ -25,7 +25,24 @@
       ;;;(doAgentPlan (stressLevel ?gamestate))
       ;;; evaluate potential moves
       (doAgentPlan (evaluateAdjLocations ?gamestate 0))
-      
+
+      )
+    )
+  )
+)
+
+;;; record card plan
+(preconditionForMethod
+  (and
+    (ist-Information ?gamestate (location Dracula ?currentLocation))
+    (ist-Information ?gamestate (stressAt ?stressLevel ?currentLocation))
+    (leaveCard ?stressLevel ?card)
+  )
+  (methodForAction
+    (recordEncounterCard ?gamestate)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (ResultsMtFn ?gamestate) (leaveEncounter ?card)))
       )
     )
   )
