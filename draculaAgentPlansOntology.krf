@@ -6,11 +6,13 @@
   (arity SearchSpaceMtFn 1)
   (arg1Isa SearchSpaceMtFn Integer)
   (resultIsa SearchSpaceMtFn Microtheory)
+  (comment SearchSpaceMtFn "SearchSpaceMtFn takes an integer representing a layer of recursion and returns a microtheory storing the variables as they were at that layer")
 
 (isa ResultsMtFn UnaryFunction)
   (arity ResultsMtFn 1)
   (arg1Isa ResultsMtFn Microtheory)
   (resultIsa ResultsMtFn Microtheory)
+  (comment ResultsMtFn "ResultsMtFn takes a microtheory and returns another microtheory containing the results of calculations that were performed on that microtheory")
 
 
 (isa getSearchSpace ComplexActionPredicate)
@@ -26,48 +28,57 @@
 (isa maxDistance UnaryPredicate)
   (arity maxDistance 1)
   (arg1Isa maxDistance Integer)
+  (comment maxDistance "maxDistance returns the maximum distance that a hunter can believe that Dracula is from his last known locaiton")
 
 (isa searchSpace UnaryPredicate)
 (arity searchSpace 1)
 (arg1Isa searchSpace Integer)
+(comment searchSpace "searchSpace returns the number of locations where Dracula could plausibly be, according to the hunters' knowledge")
 
 (isa frontier UnaryPredicate)
   (arity frontier 1)
   (arg1Isa frontier Set)
+  (comment frontier "frontier returns a set of locations yet to be explored. It is used in Dijkstra's and searchSpace")
 
 (isa gameState UnaryPredicate)
   (arity gameState 1)
   (arg1Isa gameState Microtheory)
+  (comment gameState "gameState returns the gameState that the plan is operating on")
 
 (isa conformsToFaceUpCard TernaryPredicate)
   (arity conformsToFaceUpCard 3)
   (arg1Isa conformsToFaceUpCard Location)
   (arg2Isa conformsToFaceUpCard Integer)
   (arg3Isa conformsToFaceUpCard Microtheory)
+  (comment conformsToFaceUpCard "conformsToFaceUpCard asserts that Dracula could be at a given location, given the face-up cards that the hunters can see on the trail")
 
 (isa conformsToSeaCard TernaryPredicate)
   (arity conformsToSeaCard 3)
   (arg1Isa conformsToSeaCard Location)
   (arg2Isa conformsToSeaCard Integer)
   (arg3Isa conformsToSeaCard Microtheory)
+  (comment conformsToSeaCard "conformsToSeaCard asserts that Dracula could be at a given location, given the sea cards that the hunters can see on the trail")
 
 (isa conformsToNegativePsychicBond TernaryPredicate)
   (arity conformsToNegativePsychicBond 3)
   (arg1Isa conformsToNegativePsychicBond Location)
   (arg2Isa conformsToNegativePsychicBond Integer)
   (arg3Isa conformsToNegativePsychicBond Microtheory)
+  (comment conformsToNegativePsychicBond "conformsToNegativePsychicBond asserts that Dracula could be a given location, given the last psychicBond action that revealed that a given region was Dracula-free")
 
 (isa conformsToPositivePsychicBond TernaryPredicate)
   (arity conformsToPositivePsychicBond 3)
   (arg1Isa conformsToPositivePsychicBond Location)
   (arg2Isa conformsToPositivePsychicBond Integer)
   (arg3Isa conformsToPositivePsychicBond Microtheory)
+  (comment conformsToPositivePsychicBond "conformsToPositivePsychicBond asserts that Dracula could be a given location, given the last psychicBond action that confirmed that Dracula was in a given region at that time")
 
 (isa conformsToPreviousHunterLocations TernaryPredicate)
   (arity conformsToPreviousHunterLocations 3)
   (arg1Isa conformsToPreviousHunterLocations Location)
   (arg2Isa conformsToPreviousHunterLocations Integer)
   (arg3Isa conformsToPreviousHunterLocations Microtheory)
+  (comment conformsToPreviousHunterLocations "conformsToPreviousHunterLocations asserts that Dracula could be at a given location, given the locations that the hunters have previously visited and cleared")
 
 (isa validLocation TernaryPredicate)
   (arity validLocation 3)
@@ -79,35 +90,43 @@
 (isa distance UnaryPredicate)
   (arity distance 1)
   (arg1Isa distance Integer)
+  (comment distance "distance describes an integer that measures distance in edges on the map")
 
 (isa startLocation UnaryPredicate)
   (arity startLocation 1)
   (arg1Isa startLocation Location)
+  (comment startLocation "startLocation describes where to begin a particular round of Dijkstra's shortest path calculations")
 
 
 (isa currentDistance UnaryPredicate)
   (arity currentDistance 1)
   (arg1Isa currentDistance Integer)
+  (comment currentDistance "currentDistance describes the distance that is associated with a particular layer of recursion within getSearchSpace")
 
 (isa currentLocation UnaryPredicate)
   (arity currentLocation 1)
   (arg1Isa currentLocation Location)
+  (comment currentLocation "currentLocation describes where an agent is at a given moment, usually within the context of a recursive plan")
 
 (isa visitedSet UnaryPredicate)
 (arity visitedSet 1)
 (arg1Isa visitedSet Set-Mathematical)
+(comment visitedSet "visitedSet stores all the locations that the dijkstra's algorithm has explored already")
 
 (isa goalLocation UnaryPredicate)
 (arity goalLocation 1)
 (arg1Isa goalLocation Location)
+(comment goalLocation "goalLocation describes the goal for a path-finding algorithm")
 
 (isa hunter UnaryPredicate)
 (arity hunter 1)
 (arg1Isa hunter Agent)
+(comment hunter "hunter returns a hunter who is being reasoned about in a given plan")
 
 (isa added UnaryPredicate)
   (arity added 1)
   (arg1Isa added Set-Mathematical)
+
 
 (isa originalMt UnaryPredicate)
   (arity originalMt 1)
