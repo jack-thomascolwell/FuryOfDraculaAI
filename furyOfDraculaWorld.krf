@@ -752,8 +752,6 @@ AustroHungaria
 	(arity MaturingHeuristic 1)
 	(arg1isa MaturingHueristic Integer)
 
-
-
 (isa cardOnTrail BinaryPredicate)
 	(arity cardOnTrail 2)
 	(arg1isa cardOnTrail EncounterCard)
@@ -800,112 +798,13 @@ AustroHungaria
 	(arg2isa hasFog Integer)
 	(comment hasFog "hasFog specifies that a certain city has a certain amount of fog")
 
-
 (isa despairTokens Predicate)
   (arg1isa despairTokens Integer)
   (comment despairTokens "despairTokens specifies the number of despair tokens that are on the board, indicating how many weeks in the game have passed")
 
-
 (isa influence Predicate)
   (arg1isa influence Integer)
   (comment influence "influence describes how far Dracula has progressed the influence track, indicating how close he is to winning the game")
-
-
-(isa moveTo UnaryPredicate)
-(arity moveTo 1)
-(arg1Isa moveTo Location)
-
-(isa leaveCard Predicate)
-(arity leaveCard 3)
-(arg1Isa leaveCard Set)
-(arg2Isa leaveCard Integer)
-(arg3Isa leaveCard Card)
-
-
-
-;;; check to make sure that hunters don’t have too many bites
-(<== (hasValidBiteTokens ?hunter)
-  (isa ?hunter Hunter)
-  (maxBiteTokens Hunter ?maxBites)
-  (biteToken ?hunter ?bites)
-  (greaterThan ?maxBites ?bites)
-)
-
-;;; check to make sure that hunters don’t have more than two train tickets each
-(<== (hasValidTrainTickets ?hunter)
-  (isa ?hunter Hunter)
-  (hasCard ?hunter trainTicket ?numTickets)
-  (greaterThan 3 ?numTickets)
-)
-
-;;; takes 6 location cards
-(<== (allLocationsConnected ?location1 ?location2 ?location3 ?location4 ?location5 ?location6)
-;;; all six locations are connected to each other
-  (connectedTo ?location1 ?location2 ?way1)
-  (connectedTo ?location2 ?location3 ?way2)
-  (connectedTo ?location3 ?location4 ?way3)
-  (connectedTo ?location4 ?location5 ?way4)
-  (connectedTo ?location5 ?location6 ?way5)
-;;; the connections are either ports or roads or sea adjacents (not yellow or white trains)
-  (uninferredSentence (isa ?way1 train))
-  (uninferredSentence (isa ?way2 train))
-  (uninferredSentence (isa ?way3 train))
-  (uninferredSentence (isa ?way4 train))
-  (uninferredSentence (isa ?way5 train))
-)
-
-
-;;; takes 5 location cards
-(<== (allLocationsConnected ?location1 ?location2 ?location3 ?location4 ?location5 ?location6)
-;;; all six locations are connected to each other
-  (connectedTo ?location1 ?location2 ?way1)
-  (connectedTo ?location2 ?location3 ?way2)
-  (connectedTo ?location3 ?location4 ?way3)
-  (connectedTo ?location4 ?location5 ?way4)
-  ;;; the connections are either ports or roads or sea adjacents (not yellow or white trains)
-  (uninferredSentence (isa ?way1 train))
-  (uninferredSentence (isa ?way2 train))
-  (uninferredSentence (isa ?way3 train))
-  (uninferredSentence (isa ?way4 train))
-)
-
-;;; takes 4 location cards
-(<== (allLocationsConnected ?location1 ?location2 ?location3 ?location4 ?location5 ?location6)
-;;; all six locations are connected to each other
-  (connectedTo ?location1 ?location2 ?way1)
-  (connectedTo ?location2 ?location3 ?way2)
-  (connectedTo ?location3 ?location4 ?way3)
-  ;;; the connections are either ports or roads or sea adjacents (not yellow or white trains)
-  (uninferredSentence (isa ?way1 train))
-  (uninferredSentence (isa ?way2 train))
-  (uninferredSentence (isa ?way3 train))
-)
-
-;;; takes 3 location cards
-(<== (allLocationsConnected ?location1 ?location2 ?location3 ?location4 ?location5 ?location6)
-;;; all six locations are connected to each other
-  (connectedTo ?location1 ?location2 ?way1)
-  (connectedTo ?location2 ?location3 ?way2)
-  ;;; the connections are either ports or roads or sea adjacents (not yellow or white trains)
-  (uninferredSentence (isa ?way1 train))
-  (uninferredSentence (isa ?way2 train))
-)
-
-;;; takes 2 location cards
-(<== (allLocationsConnected ?location1 ?location2 ?location3 ?location4 ?location5 ?location6)
-;;; all six locations are connected to each other
-  (connectedTo ?location1 ?location2 ?way1)
-  ;;; the connections are either ports or roads or sea adjacents (not yellow or white trains)
-  (uninferredSentence (isa ?way1 train))
-)
-
-
-;;; check a location card on the trail: if it is a sea, it should not have an encounter
-(<== (encounterCardInCity ?card)
-  (cardOnTrail ?card ?spaceOnTrail)
-  (locationOnTrail ?location ?spaceOnTrail)
-  (isa ?location City)
-)
 
 (isa EncounterCard Collection)
 	(genls EncounterCard Card)
@@ -999,32 +898,14 @@ AustroHungaria
 	(weakeningUtility SzganyBodyguards 1)
 	(influenceUtility SzganyBodyguards 0)
 
-
-
-
-(isa moveTo UnaryPredicate)
-(arity moveTo 1)
-(arg1Isa moveTo Location)
-
-(isa leaveCard Predicate)
-(arity leaveCard 3)
-(arg1Isa leaveCard Set)
-(arg2Isa leaveCard Number)
-(arg3Isa leaveCard Card)
-
-(isa stressAt BinaryPredicate)
-(arity stressAt 2)
-(arg1Isa stressAt Number)
-(arg2Isa stressAt Location)
-
-
 ;;; horn clause to determine dracula’s extra damage from going into a sea (+2) or between seas (+1).
 (isa extraDamage Relation)
-(arity extraDamage 4)
-(arg1Isa extraDamage Integer)
-(arg2Isa extraDamage Location)
-(arg3Isa extraDamage Location)
-(arg4Isa extraDamage Integer)
+	(arity extraDamage 4)
+	(arg1Isa extraDamage Integer)
+	(arg2Isa extraDamage Location)
+	(arg3Isa extraDamage Location)
+	(arg4Isa extraDamage Integer)
+	(comment extraDamage "extraDamage refers to the damage that Dracula will take from moving into a sea")
 
 ;;; moving from land to sea
 (<== (extraDamage ?originalDamage ?currentLocation ?nextLocation ?newDamage)
@@ -1046,4 +927,3 @@ AustroHungaria
 (uninferredSentence (isa ?nextLocation Sea))
 (evaluate ?newDamage (PlusFn 0 ?originalDamage))
 )
-

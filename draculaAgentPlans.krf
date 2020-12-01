@@ -13,9 +13,6 @@
     (playDracula ?gamestate)
     (actionSequence
       (TheList
-        ;;; construct roundMt for initial evaluateAdjLocations call
-        (doRecord (ist-Information (adjLocationsRoundMtFn 0) (currentLocation ?currentLocation)))
-        (doRecord (ist-Information (adjLocationsRoundMtFn 0) (added (TheSet))))
         ;;; call stressLevel on current gameState
         (doAgentPlan (stressLevel ?gamestate))
         (doAgentPlan (recordEncounterCard ?gamestate))
@@ -71,7 +68,7 @@
     (getMoves ?gameState)
     (actionSequence
       (TheList
-        (doRecord (ist-Information (ResultsMtFn ?gameState) (?minLocation)))
+        (doRecord (ist-Information (ResultsMtFn ?gameState) (moveTo ?minLocation)))
       )
     )
   )
