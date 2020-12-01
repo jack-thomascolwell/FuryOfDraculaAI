@@ -7,268 +7,190 @@
 
 (preconditionForMethod
   (and
-
-      (ist-Information ?gamestate (location Dracula ?currentLocation))
-
-
+    (ist-Information ?gamestate (location Dracula ?currentLocation))
   )
   (methodForAction
     (playDracula ?gamestate)
     (actionSequence
       (TheList
-
-      ;;; construct roundMt for initial evaluateAdjLocations call
-      (doRecord (ist-Information (adjLocationsRoundMtFn 0) (currentLocation ?currentLocation)))
-      (doRecord (ist-Information (adjLocationsRoundMtFn 0) (added (TheSet))))
+        ;;; construct roundMt for initial evaluateAdjLocations call
+        (doRecord (ist-Information (adjLocationsRoundMtFn 0) (currentLocation ?currentLocation)))
+        (doRecord (ist-Information (adjLocationsRoundMtFn 0) (added (TheSet))))
         ;;; call stressLevel on current gameState
-      ;;; FIXME commented out for testing purposes
-      ;;;(doAgentPlan (stressLevel ?gamestate))
-      ;;; evaluate potential moves
-      (doAgentPlan (evaluateAdjLocations ?gamestate 0))
-      (doAgentPlan (recordEncounterCard ?gamestate))
+        (doAgentPlan (stressLevel ?gamestate))
+        (doAgentPlan (recordEncounterCard ?gamestate))
+        ;;; evaluate potential moves
+        (doAgentPlan (getMoves ?gamestate))
       )
     )
   )
 )
 
+;;; getMoves PLAN
 
-;;; evaluateAdjLocations recursive case 1
+;;; base case: all moves have been evaluated
 (preconditionForMethod
-	(and
-		;;; extract info from roundMt
-		(ist-Information (adjLocationsRoundMtFn ?round) (currentLocation ?currentLocation))
-		(ist-Information (adjLocationsRoundMtFn ?round) (added ?added))
+  (and
+    ;;; all next moves have been evaluated
+    (uninferredSentence
+      (and
+        (ist-Information ?gameState (location Dracula ?currentLocation))
 
+        ;;; get some legal move
+        (evaluate ?trailSet
+          (TheClosedRetrievalSetOf ?loc
+            (ist-Information ?gameState (locationOnTrail ?loc ?space))
+          )
+        )
 
-		;;; find adjacent location that's connected by road or port.
-		(connectedTo ?currentLocation ?nextLocation ?way)
-		(elementOf ?way (TheSet road port))
+        (connectedTo ?currentLocation ?nextLocation ?way)
+        (elementOf ?way (TheSet road port))
 
-		;;;nextLocation not on trail
-    (evaluate ?trailSet (TheClosedRetrievalSetOf ?loc (ist-Information ?gamestate (locationOnTrail ?loc ?space))))
-		(uninferredSentence (elementOf ?nextLocation ?trailSet))
+        (uninferredSentence (elementOf ?nextLocation ?trailSet))
 
+        ;;; the move has not already been computed
+        (uninferredSentence (ist-Information (GameStateAfterMoveMtFn ?gameState ?nextLocation) ?someFact))
+      )
+    )
 
-		;;; nextLocation not in added
-		(evaluate ?nextLocationMinusAdded (SetDifferenceFn (TheSet ?nextLocation) ?added))
-    (different ?nextLocationMinusAdded (TheSet))
+    ;;; determine lowest stress move
+    (evaluate ?moveStressTuples
+      (TheClosedRetrievalSetOf ?tuple
+        (ist-Information (GameStateAfterMoveMtFn ?gameState ?nextLocation) (stress ?stress))
+        (unifies ?tuple (TheList ?nextLocation ?stress))
+      )
+    )
 
-		;;; add nextLocation to added set
-		(evaluate ?nextAdded (SetAdjoinFn ?added ?nextLocation))
+    (evaluate ?minStress (MinimumFn ?moveStressTuples SecondInListFn))
 
-		;;; increment round number
-		(evaluate ?nextRound (PlusFn ?round 1))
+    (elementOf ?minTuple ?moveStressTuples)
+    (evaluate ?minStress (SecondInListFn ?minTuple))
+    (evaluate ?minLocation (FirstInListFn ?minTuple))
+  )
+  (methodForAction
+    (getMoves ?gameState)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (ResultsMtFn ?gameState) (?minLocation)))
+      )
+    )
+  )
+)
 
-    ;;; extract face up locations
-    (evaluate ?faceUpFacts
+;;; recursive case: there is a move that has yet to be evaluated
+(preconditionForMethod
+  (and
+    (ist-Information ?gameState (location Dracula ?currentLocation))
+
+    ;;; get some legal move
+    (evaluate ?trailSet
+      (TheClosedRetrievalSetOf ?loc
+        (ist-Information ?gameState (locationOnTrail ?loc ?space))
+      )
+    )
+
+    (connectedTo ?currentLocation ?nextLocation ?way)
+    (elementOf ?way (TheSet road port))
+
+    (uninferredSentence (elementOf ?nextLocation ?trailSet))
+
+    ;;; the move has not already been computed
+    (uninferredSentence (ist-Information (GameStateAfterMoveMtFn ?gameState ?nextLocation) ?someFact))
+
+    (evaluate ?locationFacts
       (TheClosedRetrievalSetOf ?fact
         (and
-          (ist-Information ?gamestate (faceUpOnTrail ?card ?space))
-          (evaluate ?newSpace (PlusFn ?space 1))
-          (unifies ?fact (faceUpOnTrail ?card ?newSpace))
+          (ist-Information ?gameState (location ?agent ?location))
+          (different ?agent Dracula)
+          (unifies ?fact (location ?agent ?location))
         )
       )
     )
 
-		;;; extract all information that persists from original gamestate
-		;;; first 5 cards on trail
-		(ist-Information ?gamestate (cardOnTrail ?card1 1))
-		(ist-Information ?gamestate (cardOnTrail ?card2 2))
-		(ist-Information ?gamestate (cardOnTrail ?card3 3))
-		(ist-Information ?gamestate (cardOnTrail ?card4 4))
-		(ist-Information ?gamestate (cardOnTrail ?card5 5))
-		;;; first 5 locations on trail
-		(ist-Information ?gamestate (locationOnTrail ?location1 1))
-		(ist-Information ?gamestate (locationOnTrail ?location2 2))
-		(ist-Information ?gamestate (locationOnTrail ?location3 3))
-		(ist-Information ?gamestate (locationOnTrail ?location4 4))
-		(ist-Information ?gamestate (locationOnTrail ?location5 5))
-
-
-
-		;;; hunter locations
-		(ist-Information ?gamestate (location MinaHarker ?MHLocation))
-		(ist-Information ?gamestate (location VanHelsing ?VHLocation))
-		(ist-Information ?gamestate (location LordGodalming ?LGLocation))
-		(ist-Information ?gamestate (location JohnSeward ?JSLocation))
-
-		;;; despair tokens
-		(ist-Information ?gamestate (despairTokens ?numDespairTokens))
-
-		;;; influence
-		(ist-Information ?gamestate (influence ?influence))
-		;;; mina’s past search actions
-		(ist-Information ?gamestate (usedPsychicBond ?place ?turnsAgo))
-		;;; increment turnsAgo
-		(evaluate ?newTurnsAgo (PlusFn ?turnsAgo 1))
-
-    ;;; damage
-    (ist-Information ?gamestate (damage Dracula ?damage))
+    (ist-Information ?gameState (damage Dracula ?damage))
     (extraDamage ?damage ?currentLocation ?nextLocation ?newDamage)
-
-	)
-	(methodForAction
-		(evaluateAdjLocations ?gamestate ?round)
-	   (actionSequence
+  )
+  (methodForAction
+    (getMoves ?gameState)
+    (actionSequence
       (TheList
-    		;;; build gamestate: with new currentLocation
-        (doRecord (ist-Information (GamestateRoundMtFn ?round) (currentLocation ?nextLocation)))
-        (doRecord (ist-Information (GamestateRoundMtFn ?round) (location Dracula ?nextLocation)))
-        ;;; first 5 cards on trail all shift down (for our purposes we won’t leave a card behind)
-    	  (doRecord (ist-Information (GamestateRoundMtFn ?round) (cardOnTrail ?card1 2)))
-    		(doRecord (ist-Information (GamestateRoundMtFn ?round) (cardOnTrail ?card2 3)))
-    		(doRecord (ist-Information(GamestateRoundMtFn ?round) (cardOnTrail ?card3 4)))
-    		(doRecord (ist-Information (GamestateRoundMtFn ?round) (cardOnTrail ?card4 5)))
-    		(doRecord (ist-Information (GamestateRoundMtFn ?round) (cardOnTrail ?card5 6)))
-    		;;; first 5 locations on trail all shift down
-    		(doRecord (ist-Information (GamestateRoundMtFn ?round) (locationOnTrail ?nextLocation 1)))
-    		(doRecord (ist-Information (GamestateRoundMtFn ?round) (locationOnTrail ?location1 2)))
-    		(doRecord (ist-Information (GamestateRoundMtFn ?round) (locationOnTrail ?location2 3)))
-    		(doRecord (ist-Information (GamestateRoundMtFn ?round) (locationOnTrail ?location3 4)))
-    		(doRecord (ist-Information (GamestateRoundMtFn ?round) (locationOnTrail ?location4 5)))
-    		(doRecord (ist-Information (GamestateRoundMtFn ?round) (locationOnTrail ?location5 6)))
+        (doRecordMembersInContext (GameStateAfterMoveMtFn ?gameState ?nextLocation) ?locationFacts)
+        (doRecord (ist-Information (GameStateAfterMoveMtFn ?gameState ?nextLocation) (location Dracula ?nextLocation)))
+        (doRecord (ist-Information (GameStateAfterMoveMtFn ?gameState ?nextLocation) (damage Dracula ?newDamage)))
 
-        ;;;face up maxCards
-        (doRecordMembersInContext (GamestateRoundMtFn ?round) ?faceUpFacts)
-
-    		;;; hunter locations stay the same
-    		(doRecord (ist-Information (GamestateRoundMtFn ?round) (location MinaHarker ?MHLocation)))
-    		(doRecord (ist-Information (GamestateRoundMtFn ?round) (location VanHelsing ?VHLocation)))
-    		(doRecord (ist-Information (GamestateRoundMtFn ?round) (location LordGodalming ?LGLocation)))
-    		(doRecord (ist-Information (GamestateRoundMtFn ?round) (location JohnSeward ?JSLocation)))
-
-    		;;; despair tokens
-    		(doRecord (ist-Information (GamestateRoundMtFn ?round) (despairTokens ?numDespairTokens)))
-    		;;; influence
-    		(doRecord (ist-Information (GamestateRoundMtFn ?round) (influence ?influence)))
-    		;;; damage
-        (doRecord (ist-Information (GamestateRoundMtFn ?round) (damage ?newDamage)))
-
-    		(doRecord (ist-Information (GamestateRoundMtFn ?round) (usedPsychicBond ?place ?newTurnsAgo)))
-    		;;; find stress at child location
-    		(doAgentPlan (stressLevel (GamestateRoundMtFn ?round)))
-        ;;; pass on information
-    		(doRecord (ist-Information (adjLocationsRoundMtFn ?nextRound) (added ?nextAdded)))
-    		(doRecord (ist-Information (adjLocationsRoundMtFn ?nextRound) (currentLocation ?currentLocation)))
-        )
-        )
-)
-)
-
-;;; evaluateAdjLocations base case
-
-(preconditionForMethod
-	(uninferredSentence
-  (and
-
-		;;; extract info from roundMt --> all good
-		(ist-Information (adjLocationsRoundMtFn ?round) (currentLocation ?currentLocation))
-		(ist-Information (adjLocationsRoundMtFn ?round) (added ?added))
-
-
-		;;; find adjacent location
-		(connectedTo ?currentLocation ?nextLocation ?way)
-		(elementOf ?way (TheSet road port))
-
-		;;;nextLocation not on trail
-
-		(evaluate ?trailSet (TheClosedRetrievalSetOf ?loc (ist-Information ?gamestate (locationOnTrail ?loc ?space))))
-
-
-    ;;; failed here until typo (?)
-		(uninferredSentence (elementOf ?nextLocation ?trailSet))
-
-		;;; nextLocation not in added
-		(evaluate ?nextLocationMinusAdded (SetDifferenceFn (TheSet ?nextLocation) ?added))
-     		 (different ?nextLocationMinusAdded (TheSet))
-
-		;;; add nextLocation to added set
-		(evaluate ?nextAdded (SetAdjoinFn ?added ?nextLocation))
-
-		;;; increment round number
-		(evaluate ?nextRound (PlusFn ?round 1))
-
-	)
-)
-(methodForAction
-	(evaluateAdjLocations ?gamestate ?round)
-	(actionSequence
-    (TheList
-      	;;; we have called stressLevel on all of the neighbors, call part 2
-  		(doAgentPlan (pickLocation ?gamestate (TheSet) 0))
+        (doAgentPlan (evaluateMove (GameStateAfterMoveMtFn ?gameState ?nextLocation)))
+        (doAgentPlan (getMoves ?gameState))
+      )
     )
-	)
-)
+  )
 )
 
+;;; evaluateMove PLAN
 
-;;; part 2 extract all stressAt s from the various (GamestateRoundMtFn ?round) microtheories
-;;; recursive case: still rounds to look at (similar to the clearMt plan)
+;;; case: have not yet calculated
 (preconditionForMethod
-	(and
-		;;; find the microtheory with corresponding integer and fn
-		(evaluate ?mt (GamestateRoundMtFn ?int))
+  (uninferredSentence
+    (and
+      ;;; have not calculated these values yet
+      (ist-Information (ResultsMtFn ?gameStateAfterMove) (shortestDistance MinaHarker ?MHDistance))
+      (ist-Information (ResultsMtFn ?gameStateAfterMove) (shortestDistance JohnSeward ?JSDistance))
+      (ist-Information (ResultsMtFn ?gameStateAfterMove) (shortestDistance VanHelsing ?VHDistance))
+      (ist-Information (ResultsMtFn ?gameStateAfterMove) (shortestDistance LordGodalming ?LGDistance))
+    )
+  )
+  (methodForAction
+    (evaluateMove ?gameStateAfterMove)
+    (actionSequence
+      (TheList
+        (doAgentPlan (findDistance ?gameStateAfterMove MinaHarker))
+        (doAgentPlan (clearMt DijkstrasRoundMtFn 0))
 
-		;;; get the stress level associated with that potential game state
-		(ist-Information ?mt (stressAt ?potentialLocation ?stressLevel))
+        (doAgentPlan (findDistance ?gameStateAfterMove JohnSeward))
+        (doAgentPlan (clearMt DijkstrasRoundMtFn 0))
 
-		;;; tuple-ize the location and stress
-		(evaluate ?tuple (TheList ?potentialLocation ?stressLevel))
+        (doAgentPlan (findDistance ?gameStateAfterMove VanHelsing))
+        (doAgentPlan (clearMt DijkstrasRoundMtFn 0))
 
-		;;; add this tuple to the stressSet
-		(evaluate ?newStressSet (SetAdjoinFn ?stressSet (TheSet ?tuple)))
+        (doAgentPlan (findDistance ?gameStateAfterMove LordGodalming))
+        (doAgentPlan (clearMt DijkstrasRoundMtFn 0))
 
-		;;; increment int
-		(evaluate ?newInt (PlusFn ?int 1))
-	)
-	(methodForAction
-		(pickLocation ?gamestate ?stressSet ?int)
-		(actionSequence
-			(TheList
-				(doAgentPlan (pickLocation ?gamestate ?newStressSet ?newInt))
-			)
-		)
-	)
+        (doAgentPlan (evaluateMove ?gameStateAfterMove))
+      )
+    )
+  )
 )
 
-;;; base case of pickLocation: no more stressAts to find.
+;;; case: have calculated already
 (preconditionForMethod
-	(and (uninferredSentence (and
-		;;; find the microtheory with corresponding integer and fn
-		(evaluate ?mt (GamestateRoundMtFn ?int))
+  (and
+    ;;; have already calculated these values
+    (ist-Information (ResultsMtFn ?gameStateAfterMove) (shortestDistance MinaHarker ?MHDistance))
+    (ist-Information (ResultsMtFn ?gameStateAfterMove) (shortestDistance JohnSeward ?JSDistance))
+    (ist-Information (ResultsMtFn ?gameStateAfterMove) (shortestDistance VanHelsing ?VHDistance))
+    (ist-Information (ResultsMtFn ?gameStateAfterMove) (shortestDistance LordGodalming ?LGDistance))
 
-		;;; get the stress level associated with that potential game state
-		(ist-Information ?mt (stressAt ?potentialLocation ?stressLevel))
-	))
-	;;; find min stress level of the stress set
-	(evaluate ?minStress (MinimumFn ?stressSet SecondInListFn))
-	;;; match that stress to a city
-	(elementOf ?lowStressTuple ?stressSet)
-	(evaluate ?minStress (SecondInListFn ?lowStressTuple))
+    (ist-Information ?gameStateAfterMove (damage Dracula ?damage))
 
-  (evaluate ?bestCity (FirstInListFn ?lowStressTuple))
+    (evaluate ?MHDistanceNorm (QuotientFn ?MHDistance 10))
+    (evaluate ?JSDistanceNorm (QuotientFn ?JSDistance 10))
+    (evaluate ?VHDistanceNorm (QuotientFn ?VHDistance 10))
+    (evaluate ?LGDistanceNorm (QuotientFn ?LGDistance 10))
+
+    (evaluate ?remainingHealthNorm (QuotientFn (DifferenceFn 15 ?damage) 15))
+
+    (evaluate ?averageOfCriteria (Average (TheSet (TheList ?remainingHealthNorm) (TheList ?LGDistanceNorm) (TheList ?JSDistanceNorm) (TheList ?VHDistanceNorm) (TheList ?MHDistanceNorm)) FirstInListFn))
+
+    (evaluate ?stress (DifferenceFn 1 ?averageOfCriteria))
+  )
+  (methodForAction
+    (evaluateMove ?gameStateAfterMove)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information ?gameStateAfterMove (stress ?stress)))
+      )
+    )
+  )
 )
-(methodForAction
-	(pickLocation ?gamestate ?stressSet ?int)
-	(actionSequence
-		(TheList
-			(doRecord (ist-Information ?gamestate (moveTo ?bestCity)))
-		)
-	)
-)
-)
-
-
-
-
-
-
-
-
-
-
-
-
 
 ;;; location information horn clauses
 (<== (conformsToFaceUpCard ?location ?space ?gameState)
