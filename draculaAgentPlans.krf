@@ -991,3 +991,59 @@
     )
   )
 )
+
+;;; leaving card horn clause - yes stressed case
+(<== (leaveCard ?stressLevel ?card)
+	;;; only use this horn clause if Dracula is stressed
+(greaterThan ?stressLevel 6/10)
+
+;;; get the set of cards Dracula currently has
+(cardHand Dracula ?encounterCardsInHand)
+
+;;; transform the set of cards into a set of collections w/ their respective evasion utilities
+(evaluate ?encounterCardDuples (TheClosedRetrievalSetOf ?duple
+(and
+(elementOf ?card ?encounterCardsInHand)
+(isa ?card ?cardCollection)
+(evasionUtility ?cardCollection ?utility)
+(unifies ?duple (TheList ?card ?utility))
+)))
+	
+;;; take the maximum of the ?handSet based on evasion utility
+(evaluate ?maxEvasion
+          (MaximumFn ?encounterCardDuples SecondInListFn))
+
+	;;; call it ?card
+(elementOf ?card ?encounterCardsInHand)
+(isa ?card ?cardCollection)
+(evasionUtility ?cardCollection ?maxEvasion)
+	
+)
+
+;;; not stressed case
+(<== (leaveCard ?stressLevel ?card)
+	;;; only use this horn clause if Dracula is not that stressed
+(lessThanOrEqualTo ?stressLevel 6/10)
+
+;;; get the set of cards Dracula currently has
+(cardHand Dracula ?encounterCardsInHand)
+
+;;; transform the set of cards into a set of collections w/ their respective influence utilities
+(evaluate ?encounterCardDuples (TheClosedRetrievalSetOf ?duple
+(and
+(elementOf ?card ?encounterCardsInHand)
+(isa ?card ?cardCollection)
+(influenceUtility ?cardCollection ?utility)
+(unifies ?duple (TheList ?card ?utility))
+)))
+
+	;;; take the maximum of the ?handSet based on influence utility
+(evaluate ?maxInfluence
+          (MaximumFn ?encounterCardDuples SecondInListFn))
+	
+;;; call it ?card
+(elementOf ?card ?encounterCardsInHand)
+(isa ?card ?cardCollection)
+(influenceUtility ?cardCollection ?maxInfluence)
+
+)

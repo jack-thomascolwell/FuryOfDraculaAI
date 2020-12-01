@@ -24,11 +24,10 @@
   (comment leaveEncounter "leaveEncounter says that Dracula should leave to a given encounter card")
 
 (isa leaveCard Predicate)
-  (arity leaveCard 3)
-  (arg1Isa leaveCard Set)
-  (arg2Isa leaveCard Number)
-  (arg3Isa leaveCard Card)
-  (comment leaveCard "leaveCard denotes that Dracula should leave a specific encounter card given a hand and stress level")
+  (arity leaveCard 2)
+  (arg1Isa leaveCard Number)
+  (arg2Isa leaveCard Collection)
+  (comment leaveCard "leaveCard denotes that Dracula should leave a specific encounter card given a stress level")
 
 (isa stressAt BinaryPredicate)
   (arity stressAt 2)
