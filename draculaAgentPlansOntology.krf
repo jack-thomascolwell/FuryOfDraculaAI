@@ -159,6 +159,10 @@
   (arg1isa findDistance Microtheory)
   (arg2isa findDistance Agent)
 
+(isa getNextLocations ComplexActionPredicate)
+  (arity getNextLocations 1)
+  (arg1Isa getNextLocations Integer)
+
 (isa dijkstra ComplexActionPredicate)
 	(arity dijkstra 1)
 	(arg1Isa dijkstra Integer)
