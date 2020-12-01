@@ -31,22 +31,6 @@
   )
 )
 
-;;; record card plan
-(preconditionForMethod
-  (and
-    (ist-Information ?gamestate (location Dracula ?currentLocation))
-    (ist-Information ?gamestate (stressAt ?stressLevel ?currentLocation))
-    (leaveCard ?stressLevel ?card)
-  )
-  (methodForAction
-    (recordEncounterCard ?gamestate)
-    (actionSequence
-      (TheList
-        (doRecord (ist-Information (ResultsMtFn ?gamestate) (leaveEncounter ?card)))
-      )
-    )
-  )
-)
 
 ;;; evaluateAdjLocations recursive case 1
 (preconditionForMethod
@@ -129,7 +113,7 @@
       (TheList
     		;;; build gamestate: with new currentLocation
         (doRecord (ist-Information (GamestateRoundMtFn ?round) (currentLocation ?nextLocation)))
-        (doRecord (ist-Information (GamestateRoundMtFn ?round) (locaiton Dracula ?nextLocation)))
+        (doRecord (ist-Information (GamestateRoundMtFn ?round) (location Dracula ?nextLocation)))
         ;;; first 5 cards on trail all shift down (for our purposes we won’t leave a card behind)
     	  (doRecord (ist-Information (GamestateRoundMtFn ?round) (cardOnTrail ?card1 2)))
     		(doRecord (ist-Information (GamestateRoundMtFn ?round) (cardOnTrail ?card2 3)))
@@ -617,7 +601,7 @@
 
     (actionSequence
       (TheList
-      (doClearWorkingMemory)
+
   ;;; bake the initial distance of 0 into the starting frontier
  (doRecord (ist-Information (DijkstrasRoundMtFn 0) (frontier  (TheSet(TheList 0 ?currentLocation) ))))
 (doRecord (ist-Information (DijkstrasRoundMtFn 0) (visitedSet (TheSet))))
@@ -912,7 +896,7 @@
 		(clearMt ?microFn ?int)
 		(actionSequence
 			(TheList
-				(doClearWorkingMemory)
+
 			)
 		)
 	)
