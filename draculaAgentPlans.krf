@@ -25,14 +25,13 @@
       ;;;(doAgentPlan (stressLevel ?gamestate))
       ;;; evaluate potential moves
       (doAgentPlan (evaluateAdjLocations ?gamestate 0))
-      
+      (doAgentPlan (recordEncounterCard ?gamestate))
       )
     )
   )
 )
 
 
-;;; FIXME this never happens!!! we go straight to base case!!!
 ;;; evaluateAdjLocations recursive case 1
 (preconditionForMethod
 	(and
@@ -60,6 +59,17 @@
 		;;; increment round number
 		(evaluate ?nextRound (PlusFn ?round 1))
 
+    ;;; extract face up locations
+    (evaluate ?faceUpFacts
+      (TheClosedRetrievalSetOf ?fact
+        (and
+          (ist-Information ?gamestate (faceUpOnTrail ?card ?space))
+          (evaluate ?newSpace (PlusFn ?space 1))
+          (unifies ?fact (faceUpOnTrail ?card ?newSpace))
+        )
+      )
+    )
+
 		;;; extract all information that persists from original gamestate
 		;;; first 5 cards on trail
 		(ist-Information ?gamestate (cardOnTrail ?card1 1))
@@ -73,6 +83,9 @@
 		(ist-Information ?gamestate (locationOnTrail ?location3 3))
 		(ist-Information ?gamestate (locationOnTrail ?location4 4))
 		(ist-Information ?gamestate (locationOnTrail ?location5 5))
+
+
+
 		;;; hunter locations
 		(ist-Information ?gamestate (location MinaHarker ?MHLocation))
 		(ist-Information ?gamestate (location VanHelsing ?VHLocation))
@@ -81,8 +94,7 @@
 
 		;;; despair tokens
 		(ist-Information ?gamestate (despairTokens ?numDespairTokens))
-		;;; extract damage
-		(ist-Information ?gamestate (damage ?damage))
+
 		;;; influence
 		(ist-Information ?gamestate (influence ?influence))
 		;;; mina’s past search actions
@@ -101,6 +113,7 @@
       (TheList
     		;;; build gamestate: with new currentLocation
         (doRecord (ist-Information (GamestateRoundMtFn ?round) (currentLocation ?nextLocation)))
+        (doRecord (ist-Information (GamestateRoundMtFn ?round) (locaiton Dracula ?nextLocation)))
         ;;; first 5 cards on trail all shift down (for our purposes we won’t leave a card behind)
     	  (doRecord (ist-Information (GamestateRoundMtFn ?round) (cardOnTrail ?card1 2)))
     		(doRecord (ist-Information (GamestateRoundMtFn ?round) (cardOnTrail ?card2 3)))
@@ -114,6 +127,10 @@
     		(doRecord (ist-Information (GamestateRoundMtFn ?round) (locationOnTrail ?location3 4)))
     		(doRecord (ist-Information (GamestateRoundMtFn ?round) (locationOnTrail ?location4 5)))
     		(doRecord (ist-Information (GamestateRoundMtFn ?round) (locationOnTrail ?location5 6)))
+
+        ;;;face up maxCards
+        (doRecordMembersInContext (GamestateRoundMtFn ?round) ?faceUpFacts)
+
     		;;; hunter locations stay the same
     		(doRecord (ist-Information (GamestateRoundMtFn ?round) (location MinaHarker ?MHLocation)))
     		(doRecord (ist-Information (GamestateRoundMtFn ?round) (location VanHelsing ?VHLocation)))
@@ -190,7 +207,7 @@
 (preconditionForMethod
 	(and
 		;;; find the microtheory with corresponding integer and fn
-		(evaluate ?mt (GamestateMtFn ?int))
+		(evaluate ?mt (GamestateRoundMtFn ?int))
 
 		;;; get the stress level associated with that potential game state
 		(ist-Information ?mt (stressAt ?potentialLocation ?stressLevel))
@@ -218,7 +235,7 @@
 (preconditionForMethod
 	(and (uninferredSentence (and
 		;;; find the microtheory with corresponding integer and fn
-		(evaluate ?mt (GamestateMtFn ?int))
+		(evaluate ?mt (GamestateRoundMtFn ?int))
 
 		;;; get the stress level associated with that potential game state
 		(ist-Information ?mt (stressAt ?potentialLocation ?stressLevel))
@@ -425,6 +442,7 @@
 ;;; case IV: there are face up locations
 (preconditionForMethod
   (and
+    (ist-Information ?gamestate (faceUpOnTrail ?someLocation ?someSpace))
     (evaluate ?locationsOnTrail
       (TheClosedRetrievalSetOf ?duple
         (and
@@ -918,7 +936,7 @@
 ;;; part 1 of stress calculations
 (preconditionForMethod
 	(and
-		(ist-Information ?gamestate (location Dracula ?draculaLocation))
+	   (true)
 	)
 	(methodForAction
 		(stressLevel ?gamestate)
@@ -1031,4 +1049,26 @@
         )
       )
     )
+)
+
+
+
+
+
+
+;;; record card plan
+(preconditionForMethod
+  (and
+    (ist-Information ?gamestate (location Dracula ?currentLocation))
+    (ist-Information ?gamestate (stressAt ?stressLevel ?currentLocation))
+    (leaveCard ?stressLevel ?card)
+  )
+  (methodForAction
+    (recordEncounterCard ?gamestate)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (ResultsMtFn ?gamestate) (leaveEncounter ?card)))
+      )
+    )
+  )
 )
