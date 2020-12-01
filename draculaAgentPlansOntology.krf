@@ -150,6 +150,9 @@
 (arg1Isa evaluateAdjLocations Microtheory)
 (arg2Isa evaluateAdjLocations Integer)
 
+(isa recordEncounterCard ComplexActionPredicate)
+  (arity recordEncounterCard 1)
+  (arg1Isa recordEncounterCard Microtheory)
 
 (isa findDistance ComplexActionPredicate)
   (arity findDistance 4)

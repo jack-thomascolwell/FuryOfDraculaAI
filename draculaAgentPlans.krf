@@ -31,6 +31,22 @@
   )
 )
 
+;;; record card plan
+(preconditionForMethod
+  (and
+    (ist-Information ?gamestate (location Dracula ?currentLocation))
+    (ist-Information ?gamestate (stressAt ?stressLevel ?currentLocation))
+    (leaveCard ?stressLevel ?card)
+  )
+  (methodForAction
+    (recordEncounterCard ?gamestate)
+    (actionSequence
+      (TheList
+        (doRecord (ist-Information (ResultsMtFn ?gamestate) (leaveEncounter ?card)))
+      )
+    )
+  )
+)
 
 ;;; evaluateAdjLocations recursive case 1
 (preconditionForMethod
